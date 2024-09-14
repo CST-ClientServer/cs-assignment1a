@@ -1,4 +1,4 @@
-package com.cardgame.model;
+package com.cardgameserver.model;
 
 public class Gamer {
     public enum Role {
@@ -52,3 +52,4 @@ public class Gamer {
         return password;
     }
 }
+

@@ -1,7 +1,6 @@
-package com.cardgame.dao;
+package com.cardgameserver.dao;
 
-
-import com.cardgame.model.Gamer;
+import com.cardgameserver.model.Gamer;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -102,3 +101,4 @@ public class GamerDao {
 
 
 }
+

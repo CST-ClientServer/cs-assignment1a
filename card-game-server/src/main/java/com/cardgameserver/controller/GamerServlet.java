@@ -1,11 +1,12 @@
-package com.cardgame.controller;
+package com.cardgameserver.controller;
 
 import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.cardgame.dao.GamerDao;
-import com.cardgame.model.Gamer;
+import com.cardgameserver.dao.GamerDao;
+
+import com.cardgameserver.model.Gamer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
