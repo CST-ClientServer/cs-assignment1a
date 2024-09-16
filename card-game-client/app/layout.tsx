@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Interactive card game",
+  title: "Quiz Game",
   description: "Created for COMP 3940",
 };
 
