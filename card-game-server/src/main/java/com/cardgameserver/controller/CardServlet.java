@@ -49,9 +49,14 @@ public class CardServlet extends HttpServlet {
                 case "/get":
                     getCard(request, response);
                     break;
+                case "/getByCategory":
+                    getCardByCategory(request, response);
+                    break;
                 case "/insert":
-                    System.out.println("@@ Im Inserting Card");
                     insertCard(request, response);
+                    break;
+                case "/delete":
+                    deleteCard(request, response);
                     break;
                 default:
                     listAllCard(request, response);
@@ -75,6 +80,21 @@ public class CardServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             out.print(json);
 
+            out.flush();
+        }
+
+    }
+
+    private void getCardByCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        String category = request.getParameter("category");
+        List<Card> listCard = cardDao.getCardByCategory(category);
+        String json = mapper.writeValueAsString(listCard);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
             out.flush();
         }
 
@@ -108,6 +128,17 @@ public class CardServlet extends HttpServlet {
             out.flush();
         }
 
+    }
+
+    private void deleteCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        cardDao.deleteCard(id);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print("{\"message\": \"1\"}");
+            out.flush();
+        }
     }
 
     private void listAllCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {

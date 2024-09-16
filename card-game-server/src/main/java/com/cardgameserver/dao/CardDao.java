@@ -122,6 +122,56 @@ public class CardDao {
         return card;
     }
 
+    public List<Card> getCardByCategory(String category) throws SQLException {
+        List<Card> listCard = new ArrayList<>();
+        String sql = "SELECT * FROM card WHERE category = ?";
+        connect();
+        PreparedStatement statement = jdbcConnection.prepareStatement(sql);
+        statement.setString(1, category);
+        ResultSet resultSet = statement.executeQuery();
+
+        while (resultSet.next()) {
+            int id = resultSet.getInt("id");
+            String question = resultSet.getString("question");
+            String answerOption = resultSet.getString("answer_option");
+            String answer = resultSet.getString("answer");
+            String categoryResult = resultSet.getString("category");
+
+            Blob imageBlob = resultSet.getBlob("image");
+            byte bArr[] = null;
+            bArr= imageBlob.getBytes(1, (int) imageBlob.length());
+
+            String imageBase64 = null;
+            if(imageBlob != null) {
+                imageBase64 = Base64.getEncoder().encodeToString(bArr);
+            }
+
+            Card card = new Card(id, question, answerOption, answer, imageBase64, categoryResult);
+            listCard.add(card);
+        }
+
+        resultSet.close();
+        statement.close();
+
+        disconnect();
+
+        return listCard;
+    }
+
+    public int deleteCard(int id) throws SQLException {
+        String sql = "DELETE FROM card where id = ?";
+        connect();
+
+        PreparedStatement statement = jdbcConnection.prepareStatement(sql);
+        statement.setInt(1, id);
+
+        int rowDeleted = statement.executeUpdate();
+
+        statement.close();
+        disconnect();
+
+        return rowDeleted;
+    }
 
 
 }
