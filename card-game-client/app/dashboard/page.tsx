@@ -10,72 +10,91 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
 import Modal from "react-modal";
 
+interface Category {
+  id: number;
+  category: string;
+}
+
+interface QuizCard {
+  id: number;  
+  question: string;
+  options: string[];
+  imageSrc?: string;
+  category: Category;
+}
+
+const movieCategory: Category = { id: 1, category: "Movies" };
+const politicsCategory: Category = { id: 2, category: "Politics" };
+const productCategory: Category = { id: 3, category: "Products" };
+const musicCategory: Category = { id: 4, category: "Music" };
+const historyCategory: Category = { id: 5, category: "History" };
+const scienceCategory: Category = { id: 6, category: "Science" };
+
 const categoryCards = [
-  { id: 1, title: "Movie", category: "Movies" },
-  { id: 2, title: "Politics", category: "Politics" },
-  { id: 3, title: "Product", category: "Products" },
-  { id: 4, title: "Music", category: "Music" },
-  { id: 5, title: "History", category: "History" },
-  { id: 6, title: "Science", category: "Science" },
+  movieCategory, politicsCategory, productCategory, musicCategory, historyCategory, scienceCategory
 ];
 
-const categoryItems = {
-  Movies: [
-    {
-      id: 1,
-      title: "Harry Potter",
-      question: "Who played Harry Potter in the movies?",
-      options: [
-        "Daniel Radcliffe",
-        "Rupert Grint",
-        "Tom Felton",
-        "Matthew Lewis",
-      ],
-    },
-    {
-      id: 2,
-      title: "Interstellar",
-      question: "Who directed Interstellar?",
-      options: [
-        "Christopher Nolan",
-        "Steven Spielberg",
-        "James Cameron",
-        "Ridley Scott",
-      ],
-    },
-    {
-      id: 3,
-      title: "Home Alone",
-      question: "How many Home Alone movies are there?",
-      options: ["1", "2", "3", "4"],
-    },
-  ],
+const QuizCard1: QuizCard = {
+  id: 1,
+  question: "Who played Harry Potter in the movies?",
+  options: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
+  category: movieCategory,
 };
 
+const QuizCard2: QuizCard = {
+  id: 2,
+  question: "Who directed Interstellar?",
+  options: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
+  category: movieCategory,
+};
+
+const QuizCard3: QuizCard = {
+  id: 3,
+  question: "How many Home Alone movies are there?",
+  options: ["1", "2", "3", "4"],
+  category: movieCategory,
+};
+
+const QuizCard4: QuizCard = {
+  id: 4,
+  question: "Who is the current president of the United States?",
+  options: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
+  category: politicsCategory,
+};
+
+const QuizCard5: QuizCard = { 
+  id: 5,
+  question: "What is the capital of France?",
+  options: ["Paris", "London", "Berlin", "Madrid"],
+  category: politicsCategory,
+};
+
+const quizCardList = [
+  QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5
+];
+
 export default function Dashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedCard, setSelectedCard] = useState<any>(null); // change type
+  const [selectedCategory, setSelectedCategory] = useState<number | "All">("All");
+  const [selectedCard, setSelectedCard] = useState<QuizCard | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-  const [currentCategoryItems, setCurrentCategoryItems] = useState<any[]>([]); // change type
+  const [currentCategoryItems, setCurrentCategoryItems] = useState<QuizCard[]>([]);
 
   useEffect(() => {
     if (selectedCard) {
       setModalIsOpen(true);
-      setCurrentCategoryItems(categoryItems[selectedCard.category] || []); // fix type
+      setCurrentCategoryItems(quizCardList.filter((card) => card.category.id === selectedCard.category.id) || []);
     }
   }, [selectedCard]);
 
-  const filteredCardData =
-    selectedCategory === "All"
-      ? categoryCards
-      : categoryCards.filter((card) => card.category === selectedCategory);
+  const filteredCardData = selectedCategory === "All"
+    ? quizCardList // Updated to use quizCardList
+    : quizCardList.filter((card) => card.category.id === selectedCategory);
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
+  const handleCategoryChange = (categoryId: number | "All") => {
+    setSelectedCategory(categoryId);
   };
 
-  const handleCardClick = (card: any) => {
-    // change type
+  const handleCardClick = (card: QuizCard) => {
     setSelectedCard(card);
   };
 
@@ -97,23 +116,15 @@ export default function Dashboard() {
               dropdown
               dropdownValues={[
                 { label: "All", onClick: () => handleCategoryChange("All") },
-                {
-                  label: "Movies",
-                  onClick: () => handleCategoryChange("Movies"),
-                },
-                {
-                  label: "Politics",
-                  onClick: () => handleCategoryChange("Politics"),
-                },
-                {
-                  label: "Products",
-                  onClick: () => handleCategoryChange("Products"),
-                },
+                ...categoryCards.map(cat => ({
+                  label: cat.category,
+                  onClick: () => handleCategoryChange(cat.id),
+                })),
               ]}
               className="w-60 border-thin"
             >
               <div className="flex items-center justify-between w-full">
-                <span>{selectedCategory || "Select Category"}</span>
+                <span>{typeof selectedCategory === 'number' ? categoryCards.find(cat => cat.id === selectedCategory)?.category : "Select Category"}</span>
                 <ChevronDownIcon className="h-4 w-4" />
               </div>
             </Button>
@@ -122,8 +133,8 @@ export default function Dashboard() {
 
         <BentoGrid className="pt-6 pb-10 gap-20">
           {filteredCardData.map((card) => (
-            <Card key={card.id} onClick={() => handleCardClick(card)}>
-              <h1 className="text-xl sm:text-2xl">{card.title}</h1>
+            <Card key={card.id} onClick={() => handleCardClick(card)}> 
+              <h1 className="text-xl sm:text-2xl">{card.id}</h1>
               <Image
                 src="https://nextjs.org/icons/next.svg"
                 alt="image"
@@ -144,10 +155,15 @@ export default function Dashboard() {
       >
         {selectedCard && (
           <GameCard
-            title={selectedCard.title}
-            category={selectedCard.category}
+            title={selectedCard.question}
+            category={selectedCard.category.category}
             onClose={handleCloseModal}
-            categoryItems={currentCategoryItems}
+            categoryItems={currentCategoryItems.map(item => ({
+              id: item.id,
+              title: item.question,
+              question: item.question,
+              options: item.options,
+            }))}
           />
         )}
       </Modal>
