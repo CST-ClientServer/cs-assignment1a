@@ -3,7 +3,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-src/main/java/com/cardgameserver/util/DBConnection.java
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -38,3 +37,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+../card-game-server/src/main/java/com/cardgameserver/util/DBConnection.java
