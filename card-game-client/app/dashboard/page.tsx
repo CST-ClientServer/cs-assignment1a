@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
 import Modal from "react-modal";
+import axios from "axios";
 
 interface Category {
   id: number;
@@ -18,12 +19,17 @@ interface Category {
 interface QuizCard {
   id: number;  
   question: string;
-  options: string[];
+  answerOptions: string[];
   answer: string;
-  imageSrc?: string;
+  file?: string;
   category: Category;
+  subCategory: string;
 }
 
+/*
+  The following code is a mock data for the quiz cards and categories.
+  You can replace this with your own data or fetch it from an API.
+*/
 const movieCategory: Category = { id: 1, category: "Movies" };
 const politicsCategory: Category = { id: 2, category: "Politics" };
 const productCategory: Category = { id: 3, category: "Products" };
@@ -38,46 +44,55 @@ const categoryCards = [
 const QuizCard1: QuizCard = {
   id: 1,
   question: "Who played Harry Potter in the movies?",
-  options: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
+  answerOptions: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
   answer: "Daniel Radcliffe",
   category: movieCategory,
+  subCategory: "Harry Potter",
 };
 
 const QuizCard2: QuizCard = {
   id: 2,
   question: "Who directed Interstellar?",
-  options: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
+  answerOptions: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
   answer: "Christopher Nolan",
   category: movieCategory,
+  subCategory: "Interstellar",
 };
 
 const QuizCard3: QuizCard = {
   id: 3,
   question: "How many Home Alone movies are there?",
-  options: ["1", "2", "3", "4"],
+  answerOptions: ["1", "2", "3", "4"],
   answer: "4",
   category: movieCategory,
+  subCategory: "Home Alone",
 };
 
 const QuizCard4: QuizCard = {
   id: 4,
   question: "Who is the current president of the United States?",
-  options: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
+  answerOptions: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
   answer: "Joe Biden",
   category: politicsCategory,
+  subCategory: "United States",
 };
 
 const QuizCard5: QuizCard = { 
   id: 5,
   question: "What is the capital of France?",
-  options: ["Paris", "London", "Berlin", "Madrid"],
+  answerOptions: ["Paris", "London", "Berlin", "Madrid"],
   answer: "Paris",
   category: politicsCategory,
+  subCategory: "France",
 };
 
 const quizCardList = [
   QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5
 ];
+
+/**
+ * Mock data end for quiz and categories.
+ */
 
 export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<number | "All">("All");
@@ -91,6 +106,16 @@ export default function Dashboard() {
       setCurrentCategoryItems(quizCardList.filter((card) => card.category.id === selectedCard.category.id) || []);
     }
   }, [selectedCard]);
+
+  useEffect(() => {
+    axios.get('/card/getAll')
+    .then((response) => {
+      setCurrentCategoryItems(response.data);
+      console.log(response.data);
+  }).catch((error) => {
+      console.error('There was an error!', error);
+  });
+  }, []);
 
   const filteredCardData = selectedCategory === "All"
     ? quizCardList // Updated to use quizCardList
@@ -140,7 +165,7 @@ export default function Dashboard() {
         <BentoGrid className="pt-6 pb-10 gap-20">
           {filteredCardData.map((card) => (
             <Card key={card.id} onClick={() => handleCardClick(card)}> 
-              <h1 className="text-xl sm:text-2xl">{card.id}</h1>
+              <h1 className="text-xl sm:text-2xl">{card.subCategory}</h1>
               <Image
                 src="https://nextjs.org/icons/next.svg"
                 alt="image"
@@ -168,7 +193,7 @@ export default function Dashboard() {
               id: item.id,
               title: item.question,
               question: item.question,
-              options: item.options,
+              options: item.answerOptions,
             }))}
           />
         )}
