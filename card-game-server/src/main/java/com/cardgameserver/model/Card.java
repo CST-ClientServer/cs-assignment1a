@@ -11,35 +11,26 @@ public class Card {
     private String question;
     private String answerOption;
     private String answer;
-    public InputStream image;
+    public String file;
     private String category;
-    private String imageBase64;
 
-    public Card(String question, String answerOption, String answer, InputStream image, String category) {
+    public Card(String question, String answerOption, String answer, String file, String category) {
         this.question = question;
         this.answerOption = answerOption;
         this.answer = answer;
-        this.image = image;
+        this.file = file;
         this.category = category;
     }
 
-    public Card(int id, String question, String answerOption, String answer, InputStream image, String category) {
+    public Card(int id, String question, String answerOption, String answer, String file, String category) {
         this.id = id;
         this.question = question;
         this.answerOption = answerOption;
         this.answer = answer;
-        this.image = image;
+        this.file = file;
         this.category = category;
     }
 
-    public Card(int id, String question, String answerOption, String answer, String imageBase64 ,String category) {
-        this.id = id;
-        this.question = question;
-        this.answerOption = answerOption;
-        this.answer = answer;
-        this.category = category;
-        this.imageBase64 = imageBase64;
-    }
 
     public int getId() {
         return id;
@@ -57,15 +48,11 @@ public class Card {
         return answer;
     }
 
-    public InputStream getImage() {
-        return image;
-    }
-
     public String getCategory() {
         return category;
     }
 
-    public void setImageBase64(String imageBase64) {
-        this.imageBase64 = imageBase64;
+    public String getFile() {
+        return file;
     }
 }

@@ -3,12 +3,15 @@ package com.cardgameserver.controller;
 import com.cardgameserver.dao.CardDao;
 import com.cardgameserver.model.AnswerOption;
 import com.cardgameserver.model.Card;
+import com.cardgameserver.model.FileInfo;
 import com.cardgameserver.model.Gamer;
+import com.cardgameserver.util.FileUtil;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -111,17 +115,15 @@ public class CardServlet extends HttpServlet {
         String answer = request.getParameter("answer");
         String category = request.getParameter("category");
 
-        Part filePart = request.getPart("image");
-        InputStream inputStream = null;
-        if(filePart != null) {
-            inputStream = filePart.getInputStream();
-        }
+        ServletContext context = getServletContext();
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        FileInfo file = FileUtil.handleUploadFile(request , context);
+        String stringFileInfo = mapper.writeValueAsString(file);
 
 
-        Card card = new Card(question, answerOption, answer, inputStream, category);
+        Card card = new Card(question, answerOption, answer, stringFileInfo, category);
         cardDao.insertCard(card);
 
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         String json = mapper.writeValueAsString(card);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -142,16 +144,15 @@ public class CardServlet extends HttpServlet {
         String answer = request.getParameter("answer");
         String category = request.getParameter("category");
 
-        Part filePart = request.getPart("image");
-        InputStream inputStream = null;
-        if(filePart != null) {
-            inputStream = filePart.getInputStream();
-        }
+        ServletContext context = getServletContext();
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        FileInfo file = FileUtil.handleUploadFile(request, context);
+        String stringFileInfo = mapper.writeValueAsString(file);
 
-        Card card = new Card(id, question, answerOption, answer, inputStream, category);
+        Card card = new Card(id, question, answerOption, answer, stringFileInfo, category);
         cardDao.updateCard(card);
 
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
         String json = mapper.writeValueAsString(card);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
