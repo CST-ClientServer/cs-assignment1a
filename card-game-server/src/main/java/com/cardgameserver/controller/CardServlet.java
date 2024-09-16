@@ -55,6 +55,9 @@ public class CardServlet extends HttpServlet {
                 case "/insert":
                     insertCard(request, response);
                     break;
+                case "/update":
+                    updateCard(request, response);
+                    break;
                 case "/delete":
                     deleteCard(request, response);
                     break;
@@ -117,6 +120,36 @@ public class CardServlet extends HttpServlet {
 
         Card card = new Card(question, answerOption, answer, inputStream, category);
         cardDao.insertCard(card);
+
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        String json = mapper.writeValueAsString(card);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
+            out.flush();
+        }
+
+    }
+
+    private void updateCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        request.setCharacterEncoding("UTF-8");
+
+        int id = Integer.parseInt(request.getParameter("id"));
+        String question = request.getParameter("question");
+        String answerOption = request.getParameter("answerOption");
+        String answer = request.getParameter("answer");
+        String category = request.getParameter("category");
+
+        Part filePart = request.getPart("image");
+        InputStream inputStream = null;
+        if(filePart != null) {
+            inputStream = filePart.getInputStream();
+        }
+
+        Card card = new Card(id, question, answerOption, answer, inputStream, category);
+        cardDao.updateCard(card);
 
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         String json = mapper.writeValueAsString(card);

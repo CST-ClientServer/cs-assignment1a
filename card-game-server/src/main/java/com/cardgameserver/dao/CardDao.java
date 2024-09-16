@@ -158,6 +158,25 @@ public class CardDao {
         return listCard;
     }
 
+    public int updateCard(Card card) throws SQLException {
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, image = ?, category = ?";
+        sql += " WHERE id = ?";
+        connect();
+
+        PreparedStatement statement = jdbcConnection.prepareStatement(sql);
+        statement.setString(1, card.getQuestion());
+        statement.setString(2, card.getAnswerOption());
+        statement.setString(3, card.getAnswer());
+        statement.setBlob(4, card.getImage());
+        statement.setString(5, card.getCategory());
+        statement.setInt(6, card.getId());
+
+        int rowUpdated = statement.executeUpdate();
+        statement.close();
+        disconnect();
+        return rowUpdated;
+    }
+
     public int deleteCard(int id) throws SQLException {
         String sql = "DELETE FROM card where id = ?";
         connect();

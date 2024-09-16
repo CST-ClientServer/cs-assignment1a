@@ -23,6 +23,15 @@ public class Card {
         this.category = category;
     }
 
+    public Card(int id, String question, String answerOption, String answer, InputStream image, String category) {
+        this.id = id;
+        this.question = question;
+        this.answerOption = answerOption;
+        this.answer = answer;
+        this.image = image;
+        this.category = category;
+    }
+
     public Card(int id, String question, String answerOption, String answer, String imageBase64 ,String category) {
         this.id = id;
         this.question = question;
