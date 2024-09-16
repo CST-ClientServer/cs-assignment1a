@@ -35,14 +35,14 @@ public class CardDao {
     }
 
     public boolean insertCard(Card card) throws SQLException {
-        String sql = "INSERT INTO card (question, answer_option, answer, image, category) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO card (question, answer_option, answer, file, category) VALUES (?, ?, ?, ?, ?)";
         connect();
 
         PreparedStatement statement = jdbcConnection.prepareStatement(sql);
         statement.setString(1, card.getQuestion());
         statement.setString(2, card.getAnswerOption());
         statement.setString(3, card.getAnswer());
-        statement.setBlob(4, card.getImage());
+        statement.setString(4, card.getFile());
         statement.setString(5, card.getCategory());
 
         boolean rowInserted = statement.executeUpdate() > 0;
@@ -64,18 +64,10 @@ public class CardDao {
             String answerOption = resultSet.getString("answer_option");
             String answer = resultSet.getString("answer");
             String category = resultSet.getString("category");
-
-            Blob imageBlob = resultSet.getBlob("image");
-            byte bArr[] = null;
-            bArr= imageBlob.getBytes(1, (int) imageBlob.length());
-
-            String imageBase64 = null;
-            if(imageBlob != null) {
-                imageBase64 = Base64.getEncoder().encodeToString(bArr);
-            }
+            String file = resultSet.getString("file");
 
 
-            Card card = new Card(id, question, answerOption, answer, imageBase64, category);
+            Card card = new Card(id, question, answerOption, answer, file, category);
             listGamer.add(card);
         }
 
@@ -103,17 +95,9 @@ public class CardDao {
             String answerOption = resultSet.getString("answer_option");
             String answer = resultSet.getString("answer");
             String category = resultSet.getString("category");
+            String file = resultSet.getString("file");
 
-            Blob imageBlob = resultSet.getBlob("image");
-            byte bArr[] = null;
-            bArr= imageBlob.getBytes(1, (int) imageBlob.length());
-
-            String imageBase64 = null;
-            if(imageBlob != null) {
-                imageBase64 = Base64.getEncoder().encodeToString(bArr);
-            }
-
-            card = new Card(id, question, answerOption, answer, imageBase64, category);
+            card = new Card(id, question, answerOption, answer, file, category);
         }
 
         resultSet.close();
@@ -136,17 +120,9 @@ public class CardDao {
             String answerOption = resultSet.getString("answer_option");
             String answer = resultSet.getString("answer");
             String categoryResult = resultSet.getString("category");
+            String file = resultSet.getString("file");
 
-            Blob imageBlob = resultSet.getBlob("image");
-            byte bArr[] = null;
-            bArr= imageBlob.getBytes(1, (int) imageBlob.length());
-
-            String imageBase64 = null;
-            if(imageBlob != null) {
-                imageBase64 = Base64.getEncoder().encodeToString(bArr);
-            }
-
-            Card card = new Card(id, question, answerOption, answer, imageBase64, categoryResult);
+            Card card = new Card(id, question, answerOption, answer, file, categoryResult);
             listCard.add(card);
         }
 
@@ -159,7 +135,7 @@ public class CardDao {
     }
 
     public int updateCard(Card card) throws SQLException {
-        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, image = ?, category = ?";
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?";
         sql += " WHERE id = ?";
         connect();
 
@@ -167,7 +143,7 @@ public class CardDao {
         statement.setString(1, card.getQuestion());
         statement.setString(2, card.getAnswerOption());
         statement.setString(3, card.getAnswer());
-        statement.setBlob(4, card.getImage());
+        statement.setString(4, card.getFile());
         statement.setString(5, card.getCategory());
         statement.setInt(6, card.getId());
 
