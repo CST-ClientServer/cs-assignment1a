@@ -19,6 +19,7 @@ interface QuizCard {
   id: number;  
   question: string;
   options: string[];
+  answer: string;
   imageSrc?: string;
   category: Category;
 }
@@ -38,6 +39,7 @@ const QuizCard1: QuizCard = {
   id: 1,
   question: "Who played Harry Potter in the movies?",
   options: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
+  answer: "Daniel Radcliffe",
   category: movieCategory,
 };
 
@@ -45,6 +47,7 @@ const QuizCard2: QuizCard = {
   id: 2,
   question: "Who directed Interstellar?",
   options: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
+  answer: "Christopher Nolan",
   category: movieCategory,
 };
 
@@ -52,6 +55,7 @@ const QuizCard3: QuizCard = {
   id: 3,
   question: "How many Home Alone movies are there?",
   options: ["1", "2", "3", "4"],
+  answer: "4",
   category: movieCategory,
 };
 
@@ -59,6 +63,7 @@ const QuizCard4: QuizCard = {
   id: 4,
   question: "Who is the current president of the United States?",
   options: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
+  answer: "Joe Biden",
   category: politicsCategory,
 };
 
@@ -66,6 +71,7 @@ const QuizCard5: QuizCard = {
   id: 5,
   question: "What is the capital of France?",
   options: ["Paris", "London", "Berlin", "Madrid"],
+  answer: "Paris",
   category: politicsCategory,
 };
 
