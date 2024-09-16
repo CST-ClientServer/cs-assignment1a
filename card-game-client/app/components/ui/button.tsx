@@ -21,6 +21,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         none: "text-primary",
+        disabled: "bg-gray-200 text-gray-400",
         dropdown: "bg-primary text-primary-foreground hover:bg-primary/90",
         quiz: "bg-red-200 hover:bg-red-300",
         selected: "bg-green-200 text-primary-foreground",

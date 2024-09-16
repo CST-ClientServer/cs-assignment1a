@@ -141,6 +141,7 @@ export default function Dashboard() {
         contentLabel="Game Card Modal"
         className="flex items-center justify-center fixed inset-0 z-50"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        ariaHideApp={false}
       >
         {selectedCard && (
           <GameCard
