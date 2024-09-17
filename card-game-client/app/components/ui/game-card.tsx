@@ -221,7 +221,7 @@ export default function GameCard({
             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
           />
           {admin && (
-            <>
+            <div>
               <input
                 type="file"
                 accept="image/*, video/*"
@@ -237,7 +237,7 @@ export default function GameCard({
               >
                 Upload Media
               </Button>
-            </>
+            </div>
           )}
 
           <div className="grid grid-cols-2 gap-4 pt-3 mx-auto dark:text-black">
