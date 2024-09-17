@@ -24,6 +24,7 @@ export default function Header() {
               Home
             </a>
           </Button>
+          {/* Render manage for admins only */}
           <Button
             variant="ghost"
             asChild
