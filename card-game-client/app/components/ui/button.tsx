@@ -46,6 +46,7 @@ export interface ButtonProps
   asChild?: boolean;
   dropdown?: boolean;
   dropdownValues?: { label: string; onClick: () => void }[];
+  placeholder?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -57,6 +58,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       dropdown = false,
       dropdownValues = [],
+      placeholder = "All",
       ...props
     },
     ref
@@ -94,7 +96,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               dropdown ? "justify-between" : "justify-center"
             )}
           >
-            {dropdown ? <span>{selectedValue || "All"}</span> : props.children}
+            {dropdown ? (
+              <span>{selectedValue || placeholder}</span>
+            ) : (
+              props.children
+            )}
             {dropdown && <ChevronDownIcon className="h-4 w-4" />}
           </div>
         </Comp>
@@ -104,7 +110,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               {dropdownValues.map((item, index) => (
                 <li
                   key={index}
-                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm dark:text-gray-800"
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm dark:text-gray-800 dark:bg-gray-700"
                   onClick={() => handleItemClick(item.label, item.onClick)}
                 >
                   {item.label}

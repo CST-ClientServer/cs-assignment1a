@@ -6,9 +6,16 @@ import Card from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import AdminCard from "../components/ui/admin-card";
+import Modal from "react-modal";
+import GameCard from "../components/ui/game-card";
 
 export default function Manage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+
+  const handleCloseModal = () => {
+    setModalIsOpen(false);
+  };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -51,11 +58,23 @@ export default function Manage() {
           <Button
             variant="outline"
             className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
-            onClick={() => console.log("Add card logic")}
+            onClick={() => setModalIsOpen(true)}
           >
             Add Card
           </Button>
         </div>
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={handleCloseModal}
+          contentLabel="Game Card Modal"
+          className="flex items-center justify-center fixed inset-0 z-50"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+          ariaHideApp={false}
+        >
+          {modalIsOpen && (
+            <GameCard onClose={handleCloseModal} admin createCard />
+          )}
+        </Modal>
       </div>
       <div className="py-1" />
       <Card>
