@@ -1,5 +1,5 @@
 import React from "react";
-import ThemeToggle from "../theme-toggle";
+// import ThemeToggle from "../theme-toggle";
 import { Button } from "../ui/button";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 
@@ -9,7 +9,7 @@ export default function Header() {
       <div className="w-full flex justify-between items-center">
         <p className="ml-4 text-sm">Hello, firstname</p>
         <div className="flex md:gap-6 justify-end">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           <Button
             variant="ghost"
             asChild

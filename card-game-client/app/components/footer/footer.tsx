@@ -1,12 +1,12 @@
 import React from "react";
-import ThemeToggle from "../theme-toggle";
+// import ThemeToggle from "../theme-toggle";
 import { Button } from "../ui/button";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 
 export default function Footer() {
   return (
     <footer className="flex flex-row gap-6 items-center justify-center">
-      <ThemeToggle />
+      {/* <ThemeToggle /> */}
       <Button
         variant="ghost"
         asChild
