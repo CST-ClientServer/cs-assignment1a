@@ -3,12 +3,12 @@ import Image from "next/image";
 import Card from "./card";
 import { cn } from "@/app/lib/utils";
 import { Button } from "./button";
-import { CrossCircledIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
 
 interface GameCardProps {
   title?: string;
-  category: string;
+  category?: string;
   question?: string;
   options?: string[];
   image?: React.ReactNode;
@@ -21,7 +21,17 @@ interface GameCardProps {
     options: string[];
   }[];
   admin?: boolean;
+  createCard?: boolean;
 }
+
+const categoryOptions = [
+  "Movies",
+  "Politics",
+  "Products",
+  "Music",
+  "History",
+  "Science",
+];
 
 export default function GameCard({
   title,
@@ -32,15 +42,22 @@ export default function GameCard({
   onClose,
   categoryItems,
   admin,
+  createCard,
 }: GameCardProps) {
   const timeLimit = 5;
   const [checked, setChecked] = useState(false);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(createCard && admin);
   const [editingOption, setEditingOption] = useState<number | null>(null);
-  const [editedOptions, setEditedOptions] = useState(options || []);
+  const [editedOptions, setEditedOptions] = useState(
+    options || ["", "", "", ""]
+  );
+  const [editedTitle, setEditedTitle] = useState(title || "");
+  const [editedQuestion, setEditedQuestion] = useState(question || "");
+  const [editedCategory, setEditedCategory] = useState(category || "");
+  const [imageUrl, setImageUrl] = useState("");
 
   const handleChange = (checked: boolean) => {
     setChecked(checked);
@@ -95,8 +112,25 @@ export default function GameCard({
 
   const handleSave = () => {
     // add save logic here
-    console.log("Saving edited options:", editedOptions);
+    console.log("Saving new card:", {
+      title: editedTitle,
+      category: editedCategory,
+      question: editedQuestion,
+      options: editedOptions,
+      imageUrl,
+    });
     onClose?.();
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const currentItem = categoryItems?.[currentItemIndex];
@@ -104,7 +138,28 @@ export default function GameCard({
   return (
     <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
       <div className="flex justify-between items-center mb-4 w-full">
-        <p className="text-gray-600 dark:text-gray-300">Category: {category}</p>
+        <div className="text-gray-600">
+          Category:{" "}
+          {createCard || (admin && editing) ? (
+            <Button
+              variant="outline"
+              dropdown
+              dropdownValues={categoryOptions.map((category) => ({
+                label: category,
+                onClick: () => setEditedCategory(category),
+              }))}
+              placeholder={category}
+              className="w-36 border-thin"
+            >
+              <div className="flex items-center justify-between w-full">
+                <span>{category}</span>
+                <ChevronDownIcon className="h-4 w-4" />
+              </div>
+            </Button>
+          ) : (
+            category
+          )}
+        </div>
         <div className="flex flex-row gap-3">
           {!admin && (
             <div className="flex flex-row gap-3 pt-3">
@@ -127,22 +182,24 @@ export default function GameCard({
 
       {currentItem || admin ? (
         <div className={cn("flex", "flex-col", "items-center", className)}>
-          <h2 className="text-lg font-bold text-black dark:text-white mb-4 text-center">
+          <h2 className="text-lg font-bold mb-4 text-center">
             {editing ? (
               <div>
                 <input
                   type="text"
-                  value={title}
+                  placeholder="Subcategory"
+                  value={editedTitle}
                   onBlur={handleOptionBlur}
-                  onChange={(e) => title && title(e.target.value)}
+                  onChange={(e) => setEditedTitle(e.target.value)}
                   className="border rounded p-2 w-full md:w-36 text-center"
                   autoFocus
                 />
                 <input
                   type="text"
-                  value={question}
+                  placeholder="Question"
+                  value={editedQuestion}
                   onBlur={handleOptionBlur}
-                  onChange={(e) => question && question(e.target.value)}
+                  onChange={(e) => setEditedQuestion(e.target.value)}
                   className="border rounded p-2 w-full md:w-64 text-center"
                   autoFocus
                 />
@@ -154,16 +211,33 @@ export default function GameCard({
             )}
           </h2>
           <Image
-            src="https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75"
+            src={
+              imageUrl ||
+              "https://nextjs.org/_next/image?url=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Fv1723581090%2Ffront%2Fnext-conf-2024%2Ftakeover.png&w=3840&q=75"
+            }
             width={200}
             height={200}
             alt={""}
-            className={cn(["rounded-lg", "md:w-4/5", admin ? "mb-2" : "mb-6"])}
+            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
           />
           {admin && (
-            <Button onClick={() => console.log("Upload image logic")}>
-              Change Image
-            </Button>
+            <div>
+              <input
+                type="file"
+                accept="image/*, video/*"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+                id="imageUploadInput"
+                size={1}
+              />
+              <Button
+                onClick={() =>
+                  document.getElementById("imageUploadInput")?.click()
+                }
+              >
+                Upload Media
+              </Button>
+            </div>
           )}
 
           <div className="grid grid-cols-2 gap-4 pt-3 mx-auto dark:text-black">
@@ -173,6 +247,7 @@ export default function GameCard({
                     {editingOption === index && editing ? (
                       <input
                         type="text"
+                        placeholder={`Option ${index + 1}`}
                         value={option}
                         onChange={(e) => handleOptionChange(e, index)}
                         onBlur={handleOptionBlur}

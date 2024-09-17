@@ -11,14 +11,22 @@ import Modal from "react-modal";
 import GameCard from "./game-card";
 import Image from "next/image";
 
-const categories = [
+interface QuizCard {
+  id: number;
+  category: string;
+  subCategory: string;
+  question: string;
+  file?: string;
+  options: string[];
+}
+
+const categories: QuizCard[] = [
   {
     id: 1,
     category: "Movies",
-    subcategory: "Harry Potter",
+    subCategory: "Harry Potter",
     question: "Who played Harry Potter in the movies?",
-    image:
-      "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
+    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
     options: [
       "Daniel Radcliffe",
       "Rupert Grint",
@@ -29,10 +37,9 @@ const categories = [
   {
     id: 2,
     category: "Movies",
-    subcategory: "Interstellar",
+    subCategory: "Interstellar",
     question: "Who directed Interstellar?",
-    image:
-      "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
+    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
     options: [
       "Christopher Nolan",
       "Steven Spielberg",
@@ -43,19 +50,17 @@ const categories = [
   {
     id: 3,
     category: "Movies",
-    subcategory: "Home Alone",
+    subCategory: "Home Alone",
     question: "How many Home Alone movies are there?",
-    image:
-      "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
+    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
     options: ["1", "2", "3", "4"],
   },
   {
     id: 4,
     category: "Politics",
-    subcategory: "US Presidents",
+    subCategory: "US Presidents",
     question: "Who was the first president of the United States?",
-    image:
-      "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
+    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
     options: [
       "George Washington",
       "Thomas Jefferson",
@@ -70,9 +75,12 @@ interface AdminCardProps {
 }
 
 export default function AdminCard(categoryName: AdminCardProps) {
-  const [filteredCardData, setFilteredCardData] = useState<any[]>(categories); // change state
+  const [filteredCardData, setFilteredCardData] =
+    useState<QuizCard[]>(categories);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-  const [selectedCard, setSelectedCard] = useState<any>(null); // change type
+  const [selectedCard, setSelectedCard] = useState<QuizCard | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     if (categoryName.categoryName === "All") {
@@ -88,12 +96,12 @@ export default function AdminCard(categoryName: AdminCardProps) {
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
-    setSelectedCard(null);
+    setSelectedCard(undefined);
   };
 
   return (
     <>
-      <Table>
+      <Table className="dark:bg-gray-800">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">ID</TableHead>
@@ -118,14 +126,14 @@ export default function AdminCard(categoryName: AdminCardProps) {
               </TableCell>
               <TableCell>
                 <Image
-                  src={filteredCardData.image}
-                  alt={filteredCardData.subcategory}
+                  src={filteredCardData.file || ""}
+                  alt={filteredCardData.subCategory}
                   width={50}
                   height={50}
                 />
               </TableCell>
               <TableCell>{filteredCardData.category}</TableCell>
-              <TableCell>{filteredCardData.subcategory}</TableCell>
+              <TableCell>{filteredCardData.subCategory}</TableCell>
               <TableCell>{filteredCardData.question}</TableCell>
             </TableRow>
           ))}
@@ -145,18 +153,17 @@ export default function AdminCard(categoryName: AdminCardProps) {
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
         contentLabel="Game Card Modal"
-        className="flex items-center justify-center fixed inset-0 z-50"
+        className="flex items-center justify-center fixed inset-0 z-50 dark:bg-gray-800"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
         ariaHideApp={false}
       >
         {selectedCard && (
           <GameCard
-            title={selectedCard.subcategory}
+            title={selectedCard.subCategory}
             question={selectedCard.question}
             category={selectedCard.category}
             options={selectedCard.options}
             onClose={handleCloseModal}
-            categoryItems={selectedCard}
             admin
           />
         )}
