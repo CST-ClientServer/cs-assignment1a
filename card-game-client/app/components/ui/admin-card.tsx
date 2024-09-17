@@ -18,6 +18,7 @@ interface QuizCard {
   question: string;
   file?: string;
   options: string[];
+  answer?: string;
 }
 
 const categories: QuizCard[] = [
@@ -33,6 +34,7 @@ const categories: QuizCard[] = [
       "Tom Felton",
       "Matthew Lewis",
     ],
+    answer: "Daniel Radcliffe",
   },
   {
     id: 2,
@@ -46,6 +48,7 @@ const categories: QuizCard[] = [
       "James Cameron",
       "Ridley Scott",
     ],
+    answer: "Christopher Nolan",
   },
   {
     id: 3,
@@ -54,6 +57,7 @@ const categories: QuizCard[] = [
     question: "How many Home Alone movies are there?",
     file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
     options: ["1", "2", "3", "4"],
+    answer: "2",
   },
   {
     id: 4,
@@ -67,6 +71,7 @@ const categories: QuizCard[] = [
       "John Adams",
       "James Madison",
     ],
+    answer: "George Washington",
   },
 ];
 
@@ -161,6 +166,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
           <GameCard
             title={selectedCard.subCategory}
             question={selectedCard.question}
+            answer={selectedCard.answer}
             category={selectedCard.category}
             options={selectedCard.options}
             onClose={handleCloseModal}
