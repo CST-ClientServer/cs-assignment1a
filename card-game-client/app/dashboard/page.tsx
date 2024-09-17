@@ -17,13 +17,20 @@ interface Category {
 }
 
 interface QuizCard {
-  id: number;  
+  id: number;
   question: string;
   answerOptions: string[];
   answer: string;
   file?: string;
   category: Category;
   subCategory: string;
+}
+
+interface SubCategoryGroup {
+  category: Category;
+  subCategory: string;
+  questions: QuizCard[];
+  answerOptions: string[];
 }
 
 /*
@@ -38,13 +45,23 @@ const historyCategory: Category = { id: 5, category: "History" };
 const scienceCategory: Category = { id: 6, category: "Science" };
 
 const categoryCards = [
-  movieCategory, politicsCategory, productCategory, musicCategory, historyCategory, scienceCategory
+  movieCategory,
+  politicsCategory,
+  productCategory,
+  musicCategory,
+  historyCategory,
+  scienceCategory,
 ];
 
 const QuizCard1: QuizCard = {
   id: 1,
   question: "Who played Harry Potter in the movies?",
-  answerOptions: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
+  answerOptions: [
+    "Daniel Radcliffe",
+    "Rupert Grint",
+    "Tom Felton",
+    "Matthew Lewis",
+  ],
   answer: "Daniel Radcliffe",
   category: movieCategory,
   subCategory: "Harry Potter",
@@ -52,11 +69,16 @@ const QuizCard1: QuizCard = {
 
 const QuizCard2: QuizCard = {
   id: 2,
-  question: "Who directed Interstellar?",
-  answerOptions: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
-  answer: "Christopher Nolan",
+  question: "Who is Harry's father in Harry Potter?",
+  answerOptions: [
+    "James Potter",
+    "Sirius Black",
+    "Remus Lupin",
+    "Severus Snape",
+  ],
+  answer: "James Potter",
   category: movieCategory,
-  subCategory: "Interstellar",
+  subCategory: "Harry Potter",
 };
 
 const QuizCard3: QuizCard = {
@@ -77,7 +99,7 @@ const QuizCard4: QuizCard = {
   subCategory: "United States",
 };
 
-const QuizCard5: QuizCard = { 
+const QuizCard5: QuizCard = {
   id: 5,
   question: "What is the capital of France?",
   answerOptions: ["Paris", "London", "Berlin", "Madrid"],
@@ -86,53 +108,83 @@ const QuizCard5: QuizCard = {
   subCategory: "France",
 };
 
-const quizCardList = [
-  QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5
-];
+const quizCardList = [QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5];
 
 /**
  * Mock data end for quiz and categories.
  */
 
 export default function Dashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<number | "All">("All");
-  const [selectedCard, setSelectedCard] = useState<QuizCard | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | "All">(
+    "All"
+  );
+  const [selectedSubCategory, setSelectedSubCategory] =
+    useState<SubCategoryGroup | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-  const [currentCategoryItems, setCurrentCategoryItems] = useState<QuizCard[]>([]);
+  const [groupedQuizCards, setGroupedQuizCards] = useState<SubCategoryGroup[]>(
+    []
+  );
 
   useEffect(() => {
-    if (selectedCard) {
-      setModalIsOpen(true);
-      setCurrentCategoryItems(quizCardList.filter((card) => card.category.id === selectedCard.category.id) || []);
-    }
-  }, [selectedCard]);
-
-  useEffect(() => {
-    axios.get('/card/getAll')
-    .then((response) => {
-      setCurrentCategoryItems(response.data);
-      console.log(response.data);
-  }).catch((error) => {
-      console.error('There was an error!', error);
-  });
+    const groupedCards = quizCardList.reduce<SubCategoryGroup[]>(
+      (acc, card) => {
+        const existingGroup = acc.find(
+          (group) =>
+            group.category.id === card.category.id &&
+            group.subCategory === card.subCategory
+        );
+        if (existingGroup) {
+          existingGroup.questions.push(card);
+        } else {
+          acc.push({
+            category: card.category,
+            subCategory: card.subCategory,
+            questions: [card],
+            answerOptions: card.answerOptions,
+          });
+        }
+        return acc;
+      },
+      []
+    );
+    setGroupedQuizCards(groupedCards);
   }, []);
 
-  const filteredCardData = selectedCategory === "All"
-    ? quizCardList // Updated to use quizCardList
-    : quizCardList.filter((card) => card.category.id === selectedCategory);
+  useEffect(() => {
+    if (selectedSubCategory) {
+      setModalIsOpen(true);
+    }
+  }, [selectedSubCategory]);
+
+  const filteredGroupedCards =
+    selectedCategory === "All"
+      ? groupedQuizCards
+      : groupedQuizCards.filter(
+          (group) => group.category.id === selectedCategory
+        );
+
+  useEffect(() => {
+    axios
+      .get("/card/getAll")
+      .then((response) => {
+        setGroupedQuizCards(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }, []);
 
   const handleCategoryChange = (categoryId: number | "All") => {
     setSelectedCategory(categoryId);
   };
 
-  const handleCardClick = (card: QuizCard) => {
-    setSelectedCard(card);
+  const handleSubCategoryClick = (subCategory: SubCategoryGroup) => {
+    setSelectedSubCategory(subCategory);
   };
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
-    setSelectedCard(null);
-    setCurrentCategoryItems([]);
+    setSelectedSubCategory(null);
   };
 
   return (
@@ -147,7 +199,7 @@ export default function Dashboard() {
               dropdown
               dropdownValues={[
                 { label: "All", onClick: () => handleCategoryChange("All") },
-                ...categoryCards.map(cat => ({
+                ...categoryCards.map((cat) => ({
                   label: cat.category,
                   onClick: () => handleCategoryChange(cat.id),
                 })),
@@ -155,7 +207,12 @@ export default function Dashboard() {
               className="w-60 border-thin"
             >
               <div className="flex items-center justify-between w-full">
-                <span>{typeof selectedCategory === 'number' ? categoryCards.find(cat => cat.id === selectedCategory)?.category : "Select Category"}</span>
+                <span>
+                  {typeof selectedCategory === "number"
+                    ? categoryCards.find((cat) => cat.id === selectedCategory)
+                        ?.category
+                    : "Select Category"}
+                </span>
                 <ChevronDownIcon className="h-4 w-4" />
               </div>
             </Button>
@@ -163,9 +220,16 @@ export default function Dashboard() {
         </div>
 
         <BentoGrid className="pt-6 pb-10 gap-20">
-          {filteredCardData.map((card) => (
-            <Card key={card.id} onClick={() => handleCardClick(card)}> 
-              <h1 className="text-xl sm:text-2xl">{card.subCategory}</h1>
+          {/* logic involves showing only one category containing multiple subcategories */}
+          {filteredGroupedCards.map((card) => (
+            <Card
+              key={card.subCategory}
+              onClick={() => handleSubCategoryClick(card)}
+            >
+              <h1 className="text-md sm:text-2xl">
+                {card.category.category}:{" "}
+                <span className="text-md">{card.subCategory}</span>
+              </h1>
               <Image
                 src="https://nextjs.org/icons/next.svg"
                 alt="image"
@@ -185,16 +249,20 @@ export default function Dashboard() {
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
         ariaHideApp={false}
       >
-        {selectedCard && (
+        {selectedSubCategory && (
           <GameCard
-            title={selectedCard.question}
-            category={selectedCard.category.category}
+            title={selectedSubCategory.questions
+              .map((q) => q.question)
+              .join(", ")}
+            category={selectedSubCategory.category.category}
             onClose={handleCloseModal}
-            categoryItems={currentCategoryItems.map(item => ({
-              id: item.id,
-              title: item.question,
-              question: item.question,
-              options: item.answerOptions,
+            subCategoryItems={selectedSubCategory.questions.map((q) => ({
+              id: q.id,
+              subCategory: q.subCategory,
+              title: q.question,
+              question: q.answer,
+              options: q.answerOptions,
+              answer: q.answer,
             }))}
           />
         )}

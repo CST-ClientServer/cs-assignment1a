@@ -10,15 +10,18 @@ interface GameCardProps {
   title?: string;
   category?: string;
   question?: string;
+  answer?: string;
   options?: string[];
   image?: React.ReactNode;
   className?: string;
   onClose?: () => void;
-  categoryItems?: {
+  subCategoryItems?: {
     id: number;
+    subCategory: string;
     title: string;
     question: string;
     options: string[];
+    answer?: string;
   }[];
   admin?: boolean;
   createCard?: boolean;
@@ -38,9 +41,10 @@ export default function GameCard({
   className,
   category,
   question,
+  answer,
   options,
   onClose,
-  categoryItems,
+  subCategoryItems,
   admin,
   createCard,
 }: GameCardProps) {
@@ -57,6 +61,7 @@ export default function GameCard({
   const [editedTitle, setEditedTitle] = useState(title || "");
   const [editedQuestion, setEditedQuestion] = useState(question || "");
   const [editedCategory, setEditedCategory] = useState(category || "");
+  const [editedAnswer, setEditedAnswer] = useState(answer || "");
   const [imageUrl, setImageUrl] = useState("");
 
   const handleChange = (checked: boolean) => {
@@ -101,7 +106,7 @@ export default function GameCard({
   };
 
   const handleNextClick = () => {
-    if (currentItemIndex < (categoryItems?.length ?? 0) - 1) {
+    if (currentItemIndex < (subCategoryItems?.length ?? 0) - 1) {
       setCurrentItemIndex(currentItemIndex + 1);
       setSelectedOption(null);
       setTimeLeft(timeLimit);
@@ -116,6 +121,7 @@ export default function GameCard({
       title: editedTitle,
       category: editedCategory,
       question: editedQuestion,
+      answer: editedAnswer,
       options: editedOptions,
       imageUrl,
     });
@@ -133,32 +139,52 @@ export default function GameCard({
     }
   };
 
-  const currentItem = categoryItems?.[currentItemIndex];
+  const currentItem = subCategoryItems?.[currentItemIndex];
 
   return (
     <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
       <div className="flex justify-between items-center mb-4 w-full">
         <div className="text-gray-600">
-          Category:{" "}
-          {createCard || (admin && editing) ? (
-            <Button
-              variant="outline"
-              dropdown
-              dropdownValues={categoryOptions.map((category) => ({
-                label: category,
-                onClick: () => setEditedCategory(category),
-              }))}
-              placeholder={category}
-              className="w-36 border-thin"
-            >
-              <div className="flex items-center justify-between w-full">
-                <span>{category}</span>
-                <ChevronDownIcon className="h-4 w-4" />
-              </div>
-            </Button>
-          ) : (
-            category
-          )}
+          <div>
+            Category:{" "}
+            {createCard || (admin && editing) ? (
+              <Button
+                variant="outline"
+                dropdown
+                dropdownValues={categoryOptions.map((category) => ({
+                  label: category,
+                  onClick: () => setEditedCategory(category),
+                }))}
+                placeholder={category}
+                className="w-36 border-thin"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span>{category}</span>
+                  <ChevronDownIcon className="h-4 w-4" />
+                </div>
+              </Button>
+            ) : (
+              category
+            )}
+          </div>
+          <div>
+            Subcategory:{" "}
+            {createCard || (admin && editing) ? (
+              <input
+                type="text"
+                placeholder="Subcategory"
+                value={editedTitle}
+                onBlur={handleOptionBlur}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                className="border rounded p-2 w-36 text-center"
+                autoFocus
+              />
+            ) : admin ? (
+              `${title}`
+            ) : (
+              `${currentItem?.subCategory}`
+            )}
+          </div>
         </div>
         <div className="flex flex-row gap-3">
           {!admin && (
@@ -187,15 +213,6 @@ export default function GameCard({
               <div>
                 <input
                   type="text"
-                  placeholder="Subcategory"
-                  value={editedTitle}
-                  onBlur={handleOptionBlur}
-                  onChange={(e) => setEditedTitle(e.target.value)}
-                  className="border rounded p-2 w-full md:w-36 text-center"
-                  autoFocus
-                />
-                <input
-                  type="text"
                   placeholder="Question"
                   value={editedQuestion}
                   onBlur={handleOptionBlur}
@@ -203,11 +220,20 @@ export default function GameCard({
                   className="border rounded p-2 w-full md:w-64 text-center"
                   autoFocus
                 />
+                <input
+                  type="text"
+                  placeholder="Answer"
+                  value={editedAnswer}
+                  onBlur={handleOptionBlur}
+                  onChange={(e) => setEditedAnswer(e.target.value)}
+                  className="border rounded p-2 w-full md:w-36 text-center"
+                  autoFocus
+                />
               </div>
             ) : admin ? (
-              ` ${title}: ${question}`
+              `${question} ${answer}`
             ) : (
-              `${currentItem?.title}: ${currentItem?.question}`
+              `${currentItem?.title}`
             )}
           </h2>
           <Image
@@ -312,7 +338,7 @@ export default function GameCard({
             >
               {admin
                 ? "Save"
-                : currentItemIndex < (categoryItems?.length ?? 0) - 1
+                : currentItemIndex < (subCategoryItems?.length ?? 0) - 1
                 ? "Next"
                 : "Finish"}
             </Button>
