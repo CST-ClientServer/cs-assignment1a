@@ -1,10 +1,7 @@
 package com.cardgameserver.controller;
 
 import com.cardgameserver.dao.CardDao;
-import com.cardgameserver.model.AnswerOption;
-import com.cardgameserver.model.Card;
-import com.cardgameserver.model.FileInfo;
-import com.cardgameserver.model.Gamer;
+import com.cardgameserver.model.*;
 import com.cardgameserver.util.FileUtil;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -64,6 +61,9 @@ public class CardServlet extends HttpServlet {
                     break;
                 case "/delete":
                     deleteCard(request, response);
+                    break;
+                case "/getAllCategory":
+                    getAllCategory(request, response);
                     break;
                 default:
                     listAllCard(request, response);
@@ -171,6 +171,19 @@ public class CardServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         try (PrintWriter out = response.getWriter()) {
             out.print("{\"message\": \"1\"}");
+            out.flush();
+        }
+    }
+
+    private void getAllCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        List<Category> listCategory = cardDao.getAllCategory();
+        String json = mapper.writeValueAsString(listCategory);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
             out.flush();
         }
     }
