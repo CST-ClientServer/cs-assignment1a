@@ -16,12 +16,30 @@ interface Category {
   category: string;
 }
 
+interface FileObject {
+    originalName: string;
+    savedPath: string;
+    savedName: string;
+    size: string;
+    extension: string;
+}
+
+interface QuizCardFromDB {
+  id: number;
+  question: string;
+  answerOptions: string[];
+  answer: string;
+  file?: string;
+  category: string;
+  subCategory: string;
+}
+
 interface QuizCard {
   id: number;  
   question: string;
   answerOptions: string[];
   answer: string;
-  file?: string;
+  file?: FileObject;
   category: Category;
   subCategory: string;
 }
@@ -30,65 +48,65 @@ interface QuizCard {
   The following code is a mock data for the quiz cards and categories.
   You can replace this with your own data or fetch it from an API.
 */
-const movieCategory: Category = { id: 1, category: "Movies" };
-const politicsCategory: Category = { id: 2, category: "Politics" };
-const productCategory: Category = { id: 3, category: "Products" };
-const musicCategory: Category = { id: 4, category: "Music" };
-const historyCategory: Category = { id: 5, category: "History" };
-const scienceCategory: Category = { id: 6, category: "Science" };
+// const movieCategory: Category = { id: 1, category: "Movies" };
+// const politicsCategory: Category = { id: 2, category: "Politics" };
+// const productCategory: Category = { id: 3, category: "Products" };
+// const musicCategory: Category = { id: 4, category: "Music" };
+// const historyCategory: Category = { id: 5, category: "History" };
+// const scienceCategory: Category = { id: 6, category: "Science" };
+//
+// const categoryCards = [
+//   movieCategory, politicsCategory, productCategory, musicCategory, historyCategory, scienceCategory
+// ];
 
-const categoryCards = [
-  movieCategory, politicsCategory, productCategory, musicCategory, historyCategory, scienceCategory
-];
-
-const QuizCard1: QuizCard = {
-  id: 1,
-  question: "Who played Harry Potter in the movies?",
-  answerOptions: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
-  answer: "Daniel Radcliffe",
-  category: movieCategory,
-  subCategory: "Harry Potter",
-};
-
-const QuizCard2: QuizCard = {
-  id: 2,
-  question: "Who directed Interstellar?",
-  answerOptions: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
-  answer: "Christopher Nolan",
-  category: movieCategory,
-  subCategory: "Interstellar",
-};
-
-const QuizCard3: QuizCard = {
-  id: 3,
-  question: "How many Home Alone movies are there?",
-  answerOptions: ["1", "2", "3", "4"],
-  answer: "4",
-  category: movieCategory,
-  subCategory: "Home Alone",
-};
-
-const QuizCard4: QuizCard = {
-  id: 4,
-  question: "Who is the current president of the United States?",
-  answerOptions: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
-  answer: "Joe Biden",
-  category: politicsCategory,
-  subCategory: "United States",
-};
-
-const QuizCard5: QuizCard = { 
-  id: 5,
-  question: "What is the capital of France?",
-  answerOptions: ["Paris", "London", "Berlin", "Madrid"],
-  answer: "Paris",
-  category: politicsCategory,
-  subCategory: "France",
-};
-
-const quizCardList = [
-  QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5
-];
+// const QuizCard1: QuizCard = {
+//   id: 1,
+//   question: "Who played Harry Potter in the movies?",
+//   answerOptions: ["Daniel Radcliffe", "Rupert Grint", "Tom Felton", "Matthew Lewis"],
+//   answer: "Daniel Radcliffe",
+//   category: { id: 1, category: "Movies" },
+//   subCategory: "Harry Potter",
+// };
+//
+// const QuizCard2: QuizCard = {
+//   id: 2,
+//   question: "Who directed Interstellar?",
+//   answerOptions: ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Ridley Scott"],
+//   answer: "Christopher Nolan",
+//   category: { id: 1, category: "Movies" },
+//   subCategory: "Interstellar",
+// };
+//
+// const QuizCard3: QuizCard = {
+//   id: 3,
+//   question: "How many Home Alone movies are there?",
+//   answerOptions: ["1", "2", "3", "4"],
+//   answer: "4",
+//   category: { id: 1, category: "Movies" },
+//   subCategory: "Home Alone",
+// };
+//
+// const QuizCard4: QuizCard = {
+//   id: 4,
+//   question: "Who is the current president of the United States?",
+//   answerOptions: ["Joe Biden", "Donald Trump", "Barack Obama", "George Bush"],
+//   answer: "Joe Biden",
+//   category: { id: 2, category: "Politics" },
+//   subCategory: "United States",
+// };
+//
+// const QuizCard5: QuizCard = {
+//   id: 5,
+//   question: "What is the capital of France?",
+//   answerOptions: ["Paris", "London", "Berlin", "Madrid"],
+//   answer: "Paris",
+//   category: { id: 2, category: "Politics" },
+//   subCategory: "France",
+// };
+//
+// const quizCardList = [
+//   QuizCard1, QuizCard2, QuizCard3, QuizCard4, QuizCard5
+// ];
 
 /**
  * Mock data end for quiz and categories.
@@ -100,6 +118,12 @@ export default function Dashboard() {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [currentCategoryItems, setCurrentCategoryItems] = useState<QuizCard[]>([]);
 
+  //categoryCard retrieve from db
+  const [categoryCards, setCategoryCards] = useState<Category[]>([]);
+
+  //Cards retrieve from db
+  const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
+
   useEffect(() => {
     if (selectedCard) {
       setModalIsOpen(true);
@@ -107,15 +131,36 @@ export default function Dashboard() {
     }
   }, [selectedCard]);
 
+  //Cards retrieve from db
   useEffect(() => {
     axios.get('/card/getAll')
     .then((response) => {
-      setCurrentCategoryItems(response.data);
+
+        response.data.forEach((element: QuizCardFromDB) => {
+            element.category = JSON.parse(element.category);
+            if (element.file != null) {
+                element.file = JSON.parse(element.file);
+            }
+        });
+
+      setQuizCardList(response.data);
       console.log(response.data);
   }).catch((error) => {
       console.error('There was an error!', error);
   });
   }, []);
+
+  //categoryCard retrieve from db
+    useEffect(() => {
+        axios.get('/card/getAllCategory')
+        .then((response) => {
+        setCategoryCards(response.data);
+        console.log(response.data);
+    }).catch((error) => {
+        console.error('There was an error!', error);
+    });
+    }, []);
+
 
   const filteredCardData = selectedCategory === "All"
     ? quizCardList // Updated to use quizCardList
@@ -165,11 +210,11 @@ export default function Dashboard() {
         <BentoGrid className="pt-6 pb-10 gap-20">
           {filteredCardData.map((card) => (
             <Card key={card.id} onClick={() => handleCardClick(card)}> 
-              <h1 className="text-xl sm:text-2xl">{card.subCategory}</h1>
+              <h1 className="text-xl sm:text-2xl">{card.category.category}</h1>
               <Image
-                src="https://nextjs.org/icons/next.svg"
+                src={card.file ? "http://localhost:8081/uploadFiles/" + card.file.savedName : "https://nextjs.org/icons/next.svg"}
                 alt="image"
-                width={100}
+                width={150}
                 height={100}
               />
             </Card>
