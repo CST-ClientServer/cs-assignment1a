@@ -27,7 +27,7 @@ interface FileObject {
 interface QuizCardFromDB {
   id: number;
   question: string;
-  answerOptions: string[];
+  answerOption: string | string[];
   answer: string;
   file?: string;
   category: string;
@@ -61,10 +61,10 @@ export default function Dashboard() {
     []
   );
 
-  //categoryCard retrieve from db
+  // Category list retrieve from db
   const [categoryCards, setCategoryCards] = useState<Category[]>([]);
 
-  //Cards retrieve from db
+  // Cards retrieve from db
   const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
 
   useEffect(() => {
@@ -114,6 +114,9 @@ export default function Dashboard() {
             element.category = JSON.parse(element.category);
             if (element.file != null) {
                 element.file = JSON.parse(element.file);
+            }
+            if (typeof element.answerOption === "string") {
+                element.answerOption = element.answerOption.split(",");
             }
         });
 

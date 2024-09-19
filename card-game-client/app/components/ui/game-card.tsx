@@ -5,6 +5,10 @@ import { cn } from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
+import axios from "axios";
+import {useAtom} from "jotai";
+import {QuizCard} from "@/app/components/ui/admin-card";
+import {initialQuizCardList} from "@/app/atom/atom";
 
 interface GameCardProps {
   title?: string;
@@ -25,6 +29,7 @@ interface GameCardProps {
   }[];
   admin?: boolean;
   createCard?: boolean;
+  quizCardList: QuizCard[];
 }
 
 const categoryOptions = [
@@ -46,6 +51,7 @@ export default function GameCard({
   onClose,
   subCategoryItems,
   admin,
+  image,
   createCard,
 }: GameCardProps) {
   const timeLimit = 5;
@@ -62,7 +68,11 @@ export default function GameCard({
   const [editedQuestion, setEditedQuestion] = useState(question || "");
   const [editedCategory, setEditedCategory] = useState(category || "");
   const [editedAnswer, setEditedAnswer] = useState(answer || "");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("http://localhost:8081/uploadFiles/" + image);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+
+
+  const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
 
   const handleChange = (checked: boolean) => {
     setChecked(checked);
@@ -115,17 +125,29 @@ export default function GameCard({
     }
   };
 
+
   const handleSave = () => {
-    // add save logic here
-    console.log("Saving new card:", {
-      title: editedTitle,
-      category: editedCategory,
-      question: editedQuestion,
-      answer: editedAnswer,
-      options: editedOptions,
-      imageUrl,
+    const payload = {
+        // subCategory: editedTitle,
+        category: editedCategory,
+        question: editedQuestion,
+        answer: editedAnswer,
+        answerOption: editedOptions.toString(),
+        file: uploadFile,
+    };
+
+    axios({
+      method: 'post',
+      url: '/card/insert',
+      data: payload,
+      headers: {"Content-Type": "multipart/form-data"}
+    }).then((response) => {
+        setAddedCardList([...addedCardList, response.data]);
+    }).catch(error => {
+      console.error('There was an error!', error);
+    }).finally(() => {
+        onClose?.();
     });
-    onClose?.();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +156,7 @@ export default function GameCard({
       const reader = new FileReader();
       reader.onloadend = () => {
         setImageUrl(reader.result as string);
+        setUploadFile(file);
       };
       reader.readAsDataURL(file);
     }
