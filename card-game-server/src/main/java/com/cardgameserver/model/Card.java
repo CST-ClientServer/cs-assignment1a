@@ -13,22 +13,25 @@ public class Card {
     private String answer;
     public String file;
     private String category;
+    private String subcategory;
 
-    public Card(String question, String answerOption, String answer, String file, String category) {
+    public Card(String question, String answerOption, String answer, String file, String category, String subCategory) {
         this.question = question;
         this.answerOption = answerOption;
         this.answer = answer;
         this.file = file;
         this.category = category;
+        this.subcategory = subCategory;
     }
 
-    public Card(int id, String question, String answerOption, String answer, String file, String category) {
+    public Card(int id, String question, String answerOption, String answer, String file, String category, String subCategory) {
         this.id = id;
         this.question = question;
         this.answerOption = answerOption;
         this.answer = answer;
         this.file = file;
         this.category = category;
+        this.subcategory = subCategory;
     }
 
 
@@ -54,5 +57,9 @@ public class Card {
 
     public String getFile() {
         return file;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
     }
 }
