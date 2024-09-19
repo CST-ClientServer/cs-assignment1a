@@ -54,7 +54,7 @@ public class SignupServlet extends HttpServlet {
                 out.println("\"message\": \"User created successfully\",");
 
                 out.println("\"username\": \"" + lastName + "\",");
-//                out.println("\"password\": \"" + password + "\"");
+                out.println("\"password\": \"" + password + "\"");
                 out.println("}");
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

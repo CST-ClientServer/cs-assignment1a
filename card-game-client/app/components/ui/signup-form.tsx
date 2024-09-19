@@ -26,6 +26,7 @@ export default function SignupForm() {
 
       if (response.ok) {
         const result = await response.json();
+        window.location.href = "/dashboard";
         console.log('User created:', result);
       } else {
         const error = await response.json();
