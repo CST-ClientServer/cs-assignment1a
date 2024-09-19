@@ -16,7 +16,7 @@ public class CardDao {
     ObjectMapper mapper = new ObjectMapper();
 
     public boolean insertCard(Card card) throws SQLException {
-        String sql = "INSERT INTO card (question, answer_option, answer, file, category) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO card (question, answer_option, answer, file, category, subcategory) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -25,6 +25,7 @@ public class CardDao {
             statement.setString(3, card.getAnswer());
             statement.setString(4, card.getFile());
             statement.setString(5, card.getCategory());
+            statement.setString(6, card.getSubcategory());
 
             return statement.executeUpdate() > 0;
         }
@@ -43,6 +44,7 @@ public class CardDao {
                 String question = resultSet.getString("question");
                 String answerOption = resultSet.getString("answer_option");
                 String answer = resultSet.getString("answer");
+                String subcategory = resultSet.getString("subcategory");
 
                 String category = resultSet.getString("category");
                 realCategory = new Category(category);
@@ -51,7 +53,7 @@ public class CardDao {
 
                 String file = resultSet.getString("file");
 
-                Card card = new Card(id, question, answerOption, answer, file, category);
+                Card card = new Card(id, question, answerOption, answer, file, category, subcategory);
                 listCard.add(card);
             }
         } catch (JsonProcessingException e) {
@@ -77,9 +79,9 @@ public class CardDao {
                     String answer = resultSet.getString("answer");
                     String category = resultSet.getString("category");
                     String file = resultSet.getString("file");
+                    String subcategory = resultSet.getString("subcategory");
 
-
-                    card = new Card(id, question, answerOption, answer, file, category);
+                    card = new Card(id, question, answerOption, answer, file, category, subcategory);
                 }
             }
         }
@@ -104,8 +106,9 @@ public class CardDao {
                     String answer = resultSet.getString("answer");
                     String categoryResult = resultSet.getString("category");
                     String file = resultSet.getString("file");
+                    String subcategoryResult = resultSet.getString("subcategory");
 
-                    Card card = new Card(id, question, answerOption, answer, file, categoryResult);
+                    Card card = new Card(id, question, answerOption, answer, file, categoryResult, subcategoryResult);
                     listCard.add(card);
                 }
             }
@@ -115,7 +118,7 @@ public class CardDao {
     }
 
     public int updateCard(Card card) throws SQLException {
-        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ? WHERE id = ?";
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subcategory = ?, WHERE id = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -125,7 +128,8 @@ public class CardDao {
             statement.setString(3, card.getAnswer());
             statement.setString(4, card.getFile());
             statement.setString(5, card.getCategory());
-            statement.setInt(6, card.getId());
+            statement.setString(6, card.getSubcategory());
+            statement.setInt(7, card.getId());
 
             return statement.executeUpdate();
         }
