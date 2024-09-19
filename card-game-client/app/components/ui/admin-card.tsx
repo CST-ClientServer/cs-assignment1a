@@ -10,94 +10,87 @@ import {
 import Modal from "react-modal";
 import GameCard from "./game-card";
 import Image from "next/image";
+import axios from "axios";
+import {useAtom} from "jotai";
+import {initialQuizCardList} from "@/app/atom/atom";
 
-interface QuizCard {
+export interface Category {
   id: number;
   category: string;
-  subCategory: string;
-  question: string;
-  file?: string;
-  options: string[];
-  answer?: string;
 }
 
-const categories: QuizCard[] = [
-  {
-    id: 1,
-    category: "Movies",
-    subCategory: "Harry Potter",
-    question: "Who played Harry Potter in the movies?",
-    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
-    options: [
-      "Daniel Radcliffe",
-      "Rupert Grint",
-      "Tom Felton",
-      "Matthew Lewis",
-    ],
-    answer: "Daniel Radcliffe",
-  },
-  {
-    id: 2,
-    category: "Movies",
-    subCategory: "Interstellar",
-    question: "Who directed Interstellar?",
-    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
-    options: [
-      "Christopher Nolan",
-      "Steven Spielberg",
-      "James Cameron",
-      "Ridley Scott",
-    ],
-    answer: "Christopher Nolan",
-  },
-  {
-    id: 3,
-    category: "Movies",
-    subCategory: "Home Alone",
-    question: "How many Home Alone movies are there?",
-    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
-    options: ["1", "2", "3", "4"],
-    answer: "2",
-  },
-  {
-    id: 4,
-    category: "Politics",
-    subCategory: "US Presidents",
-    question: "Who was the first president of the United States?",
-    file: "https://nextjs.org/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpreview-audible.6063405a.png&w=640&q=75",
-    options: [
-      "George Washington",
-      "Thomas Jefferson",
-      "John Adams",
-      "James Madison",
-    ],
-    answer: "George Washington",
-  },
-];
+export interface FileObject {
+  originalName: string;
+  savedPath: string;
+  savedName: string;
+  size: string;
+  extension: string;
+}
+
+export interface QuizCardFromDB {
+  id: number;
+  question: string;
+  answerOption: string | string[];
+  answer: string;
+  file?: string;
+  category: string;
+  subCategory: string;
+}
+
+export interface QuizCard {
+  id: number;
+  question: string;
+  answerOption: string[];
+  answer: string;
+  file?: FileObject;
+  category: Category;
+  subCategory: string;
+}
 
 interface AdminCardProps {
   categoryName: string;
 }
 
 export default function AdminCard(categoryName: AdminCardProps) {
-  const [filteredCardData, setFilteredCardData] =
-    useState<QuizCard[]>(categories);
+  const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
+  const [filteredCardData, setFilteredCardData] = useState<QuizCard[]>(quizCardList);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [selectedCard, setSelectedCard] = useState<QuizCard | undefined>(
     undefined
   );
+  const [addedCardList] = useAtom(initialQuizCardList);
+
+  useEffect(() => {
+    console.log("Triggered")
+    axios.get('/card/getAll')
+        .then((response) => {
+          response.data.forEach((element: QuizCardFromDB) => {
+            element.category = JSON.parse(element.category);
+            if (element.file != null) {
+              element.file = JSON.parse(element.file);
+            }
+            if (typeof element.answerOption === "string") {
+              element.answerOption = element.answerOption.split(",");
+            }
+          });
+          setQuizCardList(response.data);
+        }).catch((error) => {
+      console.error('There was an error!', error);
+    });
+  }, [addedCardList]);
+
 
   useEffect(() => {
     if (categoryName.categoryName === "All") {
-      setFilteredCardData(categories);
+      setFilteredCardData(quizCardList);
     } else {
       setFilteredCardData(
-        categories.filter(
-          (category) => category.category === categoryName.categoryName
+          quizCardList.filter(
+          (quizCard) => quizCard.category.category === categoryName.categoryName
         )
       );
     }
-  }, [categoryName]);
+  }, [quizCardList, categoryName]);
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
@@ -131,13 +124,13 @@ export default function AdminCard(categoryName: AdminCardProps) {
               </TableCell>
               <TableCell>
                 <Image
-                  src={filteredCardData.file || ""}
-                  alt={filteredCardData.subCategory}
+                  src={"http://localhost:8081/uploadFiles/" + filteredCardData.file?.savedName || ""}
+                  alt={filteredCardData.subCategory || ""}
                   width={50}
                   height={50}
                 />
               </TableCell>
-              <TableCell>{filteredCardData.category}</TableCell>
+              <TableCell>{filteredCardData.category.category}</TableCell>
               <TableCell>{filteredCardData.subCategory}</TableCell>
               <TableCell>{filteredCardData.question}</TableCell>
             </TableRow>
@@ -167,9 +160,11 @@ export default function AdminCard(categoryName: AdminCardProps) {
             title={selectedCard.subCategory}
             question={selectedCard.question}
             answer={selectedCard.answer}
-            category={selectedCard.category}
-            options={selectedCard.options}
+            category={selectedCard.category.category}
+            options={selectedCard.answerOption}
             onClose={handleCloseModal}
+            image={selectedCard.file?.savedName}
+            quizCardList={quizCardList}
             admin
           />
         )}
