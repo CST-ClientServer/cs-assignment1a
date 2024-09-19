@@ -31,7 +31,7 @@ export default function LoginForm() {
           type="submit"
           className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
         >
-          Sign in
+          Log in
         </Button>
       </form>
     </Card>
