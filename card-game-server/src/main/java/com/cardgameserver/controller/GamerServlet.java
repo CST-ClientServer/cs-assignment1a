@@ -117,10 +117,8 @@ public class GamerServlet extends HttpServlet {
     private void listAllGamer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         List<Gamer> listGamer = gamerDao.listAllGamer();
         String json = mapper.writeValueAsString(listGamer);
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
         try (PrintWriter out = response.getWriter()) {
             out.print(json);
             out.flush();
