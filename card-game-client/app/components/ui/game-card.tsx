@@ -130,7 +130,7 @@ export default function GameCard({
         setShowTooltip(true);
         setTimeout(() => {
             setShowTooltip(false);
-        }, 2000); // Hide after 2 seconds
+        }, 3000);
     };
     const handleEdit = () => {
         setEditing(true);
