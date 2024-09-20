@@ -70,6 +70,32 @@ public class GamerDao {
         }
 
 
+
+
+        return gamer;
+    }
+    public Gamer getGamerByEmail(String email) throws SQLException {
+        Gamer gamer = null;
+        String sql = "SELECT * FROM gamer WHERE email = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, email);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+//                    int id = resultSet.getInt("id");
+                    String firstName = resultSet.getString("firstName");
+                    String lastName = resultSet.getString("lastName");
+                    Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
+                    String password = resultSet.getString("password");
+
+                    gamer = new Gamer(firstName, lastName, email, role, password);
+                }
+            }
+        }
+
         return gamer;
     }
 
