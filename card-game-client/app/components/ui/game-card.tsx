@@ -136,6 +136,7 @@ export default function GameCard({
         file: uploadFile,
     };
 
+
     axios({
       method: 'post',
       url: '/card/insert',
@@ -149,6 +150,10 @@ export default function GameCard({
         onClose?.();
     });
   };
+
+  const handleDelete = () =>{
+    return;
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -364,6 +369,18 @@ export default function GameCard({
                 : currentItemIndex < (subCategoryItems?.length ?? 0) - 1
                 ? "Next"
                 : "Finish"}
+            </Button>
+            <Button
+                variant="outline"
+                className="bg-red-700 hover:bg-red-900 text-white hover:text-white"
+                disabled={admin ? false : selectedOption === null}
+                onClick={admin ? handleDelete : handleNextClick}
+            >
+              {admin
+                  ? "Delete"
+                  : currentItemIndex < (subCategoryItems?.length ?? 0) - 1
+                      ? "Next"
+                      : "Finish"}
             </Button>
           </div>
         </div>
