@@ -72,6 +72,7 @@ export default function GameCard({
         "http://localhost:8081/uploadFiles/" + image
     );
     const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [showTooltip, setShowTooltip] = useState(false);
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
 
@@ -125,7 +126,12 @@ export default function GameCard({
             onClose?.();
         }
     };
-
+    const handleTooltip = () => {
+        setShowTooltip(true);
+        setTimeout(() => {
+            setShowTooltip(false);
+        }, 2000); // Hide after 2 seconds
+    };
     const handleEdit = () => {
         setEditing(true);
     };
@@ -362,14 +368,25 @@ export default function GameCard({
                                 variant="outline"
                                 className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                                 onClick={() => {
-                                    if (!editing) {
-                                        handleEdit();
+                                    if (admin) {
+                                        if (!editing) {
+                                            handleEdit();
+                                        } else {
+                                            handleCancelEdit();
+                                        }
                                     } else {
-                                        handleCancelEdit();
+                                        handleTooltip();
                                     }
                                 }}
                             >
-                                {editing ? "Cancel Edit" : "Edit"}
+                                {editing ? "Cancel" : "Edit"}
+                                {showTooltip && (
+                                    <div
+                                        className="absolute bg-gray-700 bg-opacity-75 text-white text-sm rounded p-2
+                                         -mt-20">
+                                        You must be an admin to edit.
+                                    </div>
+                                )}
                             </Button>
                         )}
                         <Button
