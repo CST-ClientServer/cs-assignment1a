@@ -3,11 +3,13 @@ package com.cardgameserver.controller;
 import com.cardgameserver.dao.CardDao;
 import com.cardgameserver.model.*;
 import com.cardgameserver.util.FileUtil;
+import com.cardgameserver.util.JwtHandler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -44,6 +46,18 @@ public class CardServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String action = request.getPathInfo();
+
+//                // API protection after deployment
+//        String authorizationHeader = request.getHeader("Authorization");
+//        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+//            String jwt = authorizationHeader.substring(7);
+//            JwtHandler jwtHandler = new JwtHandler();
+//            Claims claims = jwtHandler.validateToken(jwt);
+//            if(claims == null) {
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+//                return;
+//            }
+//        }
 
         try {
             switch (action) {
@@ -114,7 +128,7 @@ public class CardServlet extends HttpServlet {
         String answerOption = request.getParameter("answerOption");
         String answer = request.getParameter("answer");
         String category = request.getParameter("category");
-        String subcategory = request.getParameter("subcategory");
+        String subCategory = request.getParameter("subCategory");
 
         ServletContext context = getServletContext();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -122,7 +136,7 @@ public class CardServlet extends HttpServlet {
         String stringFileInfo = mapper.writeValueAsString(file);
 
 
-        Card card = new Card(question, answerOption, answer, stringFileInfo, category, subcategory);
+        Card card = new Card(question, answerOption, answer, stringFileInfo, category, subCategory);
         cardDao.insertCard(card);
 
         String json = mapper.writeValueAsString(card);
@@ -144,14 +158,14 @@ public class CardServlet extends HttpServlet {
         String answerOption = request.getParameter("answerOption");
         String answer = request.getParameter("answer");
         String category = request.getParameter("category");
-        String subcategory = request.getParameter("subcategory");
+        String subCategory = request.getParameter("subCategory");
 
         ServletContext context = getServletContext();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         FileInfo file = FileUtil.handleUploadFile(request, context);
         String stringFileInfo = mapper.writeValueAsString(file);
 
-        Card card = new Card(id, question, answerOption, answer, stringFileInfo, category, subcategory);
+        Card card = new Card(id, question, answerOption, answer, stringFileInfo, category, subCategory);
         cardDao.updateCard(card);
 
 

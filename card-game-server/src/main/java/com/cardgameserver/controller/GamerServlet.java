@@ -7,7 +7,9 @@ import java.util.List;
 import com.cardgameserver.dao.GamerDao;
 
 import com.cardgameserver.model.Gamer;
+import com.cardgameserver.util.JwtHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -28,6 +30,18 @@ public class GamerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String action = request.getPathInfo();
 
+//        // API protection after deployment
+//        String authorizationHeader = request.getHeader("Authorization");
+//        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+//            String jwt = authorizationHeader.substring(7);
+//            JwtHandler jwtHandler = new JwtHandler();
+//            Claims claims = jwtHandler.validateToken(jwt);
+//            if(claims == null) {
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+//                return;
+//            }
+//        }
+
         try {
             switch (action) {
                 case "/get":
@@ -35,6 +49,9 @@ public class GamerServlet extends HttpServlet {
                     break;
                 case "/insert":
                     insertGamer(request, response);
+                    break;
+                case "/login":
+                    loginGamer(request, response);
                     break;
                 default:
                     listAllGamer(request, response);
@@ -49,6 +66,20 @@ public class GamerServlet extends HttpServlet {
     private void getGamer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         int id = Integer.parseInt(request.getParameter("id"));
         Gamer gamer = gamerDao.getGamer(id);
+        String json = mapper.writeValueAsString(gamer);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
+            out.flush();
+        }
+
+    }
+
+    private void loginGamer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        Gamer gamer = gamerDao.loginGamer(email, password);
         String json = mapper.writeValueAsString(gamer);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

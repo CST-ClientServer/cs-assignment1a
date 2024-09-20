@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {useLayoutEffect, useState} from "react";
 import Header from "../components/header/header";
 import Card from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -8,10 +8,21 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import AdminCard from "../components/ui/admin-card";
 import Modal from "react-modal";
 import GameCard from "../components/ui/game-card";
+import {ThreeDots} from "react-loader-spinner";
 
 export default function Manage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+    useLayoutEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login";
+        }else{
+            setIsLoading(false);
+        }
+    }, []);
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
@@ -20,6 +31,22 @@ export default function Manage() {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
   };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <ThreeDots
+                    visible={true}
+                    height="30"
+                    width="30"
+                    color="#f27f7f"
+                    radius="5"
+                    ariaLabel="three-dots-loading"
+                    wrapperStyle={{ margin: "auto" }}
+                />
+            </div>
+        );
+    }
 
   return (
     <>

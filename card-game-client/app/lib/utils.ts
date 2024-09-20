@@ -6,4 +6,4 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const defaultImageUrl =
-  "https://png.pngtree.com/png-clipart/20220124/original/pngtree-cartoon-cute-yellow-question-mark-question-sticker-variety-decorative-pattern-png-image_7175415.png";
+    "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/6e993dd5-c1b1-40c5-8d47-a7b768a5996a_defaultImage.png"

@@ -69,7 +69,7 @@ export default function GameCard({
   const [editedCategory, setEditedCategory] = useState(category || "");
   const [editedAnswer, setEditedAnswer] = useState(answer || "");
   const [imageUrl, setImageUrl] = useState<string>(
-    "http://localhost:8081/uploadFiles/" + image
+    "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" + image
   );
   const [uploadFile, setUploadFile] = useState<File | null>(null);
 
@@ -128,7 +128,7 @@ export default function GameCard({
 
   const handleSave = () => {
     const payload = {
-      // subCategory: editedTitle,
+      subCategory: editedTitle,
       category: editedCategory,
       question: editedQuestion,
       answer: editedAnswer,
@@ -263,7 +263,7 @@ export default function GameCard({
             )}
           </h2>
           <Image
-            src={imageUrl || defaultImageUrl}
+            src={imageUrl}
             width={200}
             height={200}
             alt={"Quiz card image"}
