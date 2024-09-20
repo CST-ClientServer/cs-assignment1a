@@ -118,7 +118,7 @@ public class CardDao {
     }
 
     public int updateCard(Card card) throws SQLException {
-        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ?, WHERE id = ?";
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ? WHERE id = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
