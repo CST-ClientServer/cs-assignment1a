@@ -2,8 +2,6 @@ package com.cardgameserver.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import java.io.InputStream;
-import java.sql.Blob;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Card {
@@ -13,7 +11,7 @@ public class Card {
     private String answer;
     public String file;
     private String category;
-    private String subcategory;
+    private String subCategory;
 
     public Card(String question, String answerOption, String answer, String file, String category, String subCategory) {
         this.question = question;
@@ -21,7 +19,7 @@ public class Card {
         this.answer = answer;
         this.file = file;
         this.category = category;
-        this.subcategory = subCategory;
+        this.subCategory = subCategory;
     }
 
     public Card(int id, String question, String answerOption, String answer, String file, String category, String subCategory) {
@@ -31,7 +29,7 @@ public class Card {
         this.answer = answer;
         this.file = file;
         this.category = category;
-        this.subcategory = subCategory;
+        this.subCategory = subCategory;
     }
 
 
@@ -59,7 +57,7 @@ public class Card {
         return file;
     }
 
-    public String getSubcategory() {
-        return subcategory;
+    public String getSubCategory() {
+        return subCategory;
     }
 }

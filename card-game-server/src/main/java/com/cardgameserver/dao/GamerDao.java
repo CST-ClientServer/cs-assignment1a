@@ -2,6 +2,7 @@ package com.cardgameserver.dao;
 
 import com.cardgameserver.model.Gamer;
 import com.cardgameserver.util.ConnectionManager;
+import com.cardgameserver.util.JwtHandler;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -27,19 +28,21 @@ public class GamerDao {
     public List<Gamer> listAllGamer() throws SQLException {
         List<Gamer> listGamer = new ArrayList<>();
         String sql = "SELECT * FROM gamer";
-
+        System.out.println("5 --- IM HEREEEE !!!!");
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
+            System.out.println("6 --- IM HEREEEE !!!!");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String firstName = resultSet.getString("firstName");
                 String lastName = resultSet.getString("lastName");
                 String email = resultSet.getString("email");
+                String password = resultSet.getString("password");
                 Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
-
-                Gamer gamer = new Gamer(id, firstName, lastName, email, role);
+                System.out.println("7 --- IM HEREEEE !!!!");
+                Gamer gamer = new Gamer(id, firstName, lastName, email, role, password, null);
                 listGamer.add(gamer);
             }
         }
@@ -69,6 +72,34 @@ public class GamerDao {
             }
         }
 
+
+        return gamer;
+    }
+
+    public Gamer loginGamer(String email, String password) throws SQLException {
+        Gamer gamer = null;
+        String sql = "SELECT * FROM gamer WHERE email = ? AND password = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, email);
+            statement.setString(2, password);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String firstName = resultSet.getString("firstName");
+                    String lastName = resultSet.getString("lastName");
+                    Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
+
+                    JwtHandler jwtHandler = new JwtHandler();
+                    String token = jwtHandler.generateToken(id + "" , role.name());
+
+                    gamer = new Gamer(id, firstName, lastName, email, role, token);
+                }
+            }
+        }
 
         return gamer;
     }

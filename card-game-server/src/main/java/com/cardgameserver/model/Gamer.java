@@ -11,6 +11,7 @@ public class Gamer {
     private String email;
     private Role role;
     private String password;
+    private String token;
 
     public Gamer(String firstName, String lastName, String email, Role role, String password) {
         this.firstName = firstName;
@@ -20,12 +21,31 @@ public class Gamer {
         this.password = password;
     }
 
+    public Gamer(int id, String firstName, String lastName, String email, Role role, String password, String token) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.role = role;
+        this.password = password;
+        this.token = token;
+    }
+
     public Gamer(int id, String firstName, String lastName, String email, Role role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.role = role;
+    }
+
+    public Gamer(int id, String firstName, String lastName, String email, Role role, String token) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.role = role;
+        this.token = token;
     }
 
     public int getId() {
@@ -50,6 +70,10 @@ public class Gamer {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getToken() {
+        return token;
     }
 }
 

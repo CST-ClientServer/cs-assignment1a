@@ -3,11 +3,22 @@ import React from "react";
 import { Button } from "../ui/button";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 
+import {initialGamer} from "@/app/atom/atom";
+import {useAtom} from "jotai";
+
+
 export default function Header() {
+  const [gamer] = useAtom(initialGamer)
+
+  const logoutHandler = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("gamer");
+  }
+
   return (
     <header className="row-start-3 pt-8 flex flex-col items-center">
       <div className="w-full flex justify-between items-center">
-        <p className="ml-4 text-sm">Hello, firstname</p>
+        <p className="ml-4 text-sm">Hello, {gamer.lastName + " " + gamer.firstName}</p>
         <div className="flex md:gap-6 justify-end">
           {/* <ThemeToggle /> */}
           <Button
@@ -24,8 +35,8 @@ export default function Header() {
               Home
             </a>
           </Button>
-          {/* Render manage for admins only */}
-          <Button
+          {/*This should be changed with role information in token */}
+          {(gamer.role == "ADMIN") && (<Button
             variant="ghost"
             asChild
             size="sm"
@@ -38,16 +49,17 @@ export default function Header() {
             >
               Manage
             </a>
-          </Button>
+          </Button>)}
           <Button
             variant="ghost"
             asChild
             size="sm"
             className="pointer-events-auto group"
+            onClick={logoutHandler}
           >
             <a
               className="flex items-center hover:underline hover:underline-offset-4 relative"
-              href="" // Change this logout
+              href="/login" // Change this logout
               rel="noopener noreferrer"
             >
               Logout
