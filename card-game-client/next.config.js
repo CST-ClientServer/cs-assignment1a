@@ -1,6 +1,11 @@
 module.exports = {
     images: {
-        domains: ['localhost']
+        domains: ['localhost'],
+        remotePatterns: [
+            {
+                hostname: "*",
+            },
+        ],
     },
   async rewrites() {
       return [
