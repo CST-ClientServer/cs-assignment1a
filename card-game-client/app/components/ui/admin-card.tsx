@@ -34,7 +34,7 @@ export interface QuizCardFromDB {
   answer: string;
   file?: string;
   category: string;
-  subCategory: string;
+  subcategory: string;
 }
 
 export interface QuizCard {
@@ -44,7 +44,7 @@ export interface QuizCard {
   answer: string;
   file?: FileObject;
   category: Category;
-  subCategory: string;
+  subcategory: string;
 }
 
 interface AdminCardProps {
@@ -125,13 +125,13 @@ export default function AdminCard(categoryName: AdminCardProps) {
               <TableCell>
                 <Image
                   src={"http://localhost:8081/uploadFiles/" + filteredCardData.file?.savedName || ""}
-                  alt={filteredCardData.subCategory || ""}
+                  alt={filteredCardData.subcategory || ""}
                   width={50}
                   height={50}
                 />
               </TableCell>
               <TableCell>{filteredCardData.category.category}</TableCell>
-              <TableCell>{filteredCardData.subCategory}</TableCell>
+              <TableCell>{filteredCardData.subcategory}</TableCell>
               <TableCell>{filteredCardData.question}</TableCell>
             </TableRow>
           ))}
@@ -157,7 +157,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
       >
         {selectedCard && (
           <GameCard
-            title={selectedCard.subCategory}
+            title={selectedCard.subcategory}
             question={selectedCard.question}
             answer={selectedCard.answer}
             category={selectedCard.category.category}

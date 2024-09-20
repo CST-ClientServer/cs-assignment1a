@@ -10,39 +10,7 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
 import Modal from "react-modal";
 import axios from "axios";
-
-interface Category {
-  id: number;
-  category: string;
-}
-
-interface FileObject {
-    originalName: string;
-    savedPath: string;
-    savedName: string;
-    size: string;
-    extension: string;
-}
-
-interface QuizCardFromDB {
-  id: number;
-  question: string;
-  answerOption: string | string[];
-  answer: string;
-  file?: string;
-  category: string;
-  subCategory: string;
-}
-
-interface QuizCard {
-  id: number;
-  question: string;
-  answerOptions: string[];
-  answer: string;
-  file?: FileObject;
-  category: Category;
-  subCategory: string;
-}
+import {Category, QuizCard, QuizCardFromDB} from "@/app/components/ui/admin-card";
 
 interface SubCategoryGroup {
   category: Category;
@@ -73,14 +41,14 @@ export default function Dashboard() {
         const existingGroup = acc.find(
           (group) =>
             group.category.id === card.category.id &&
-            group.subCategory === card.subCategory
+            group.subCategory === card.subcategory
         );
         if (existingGroup) {
           existingGroup.questions.push(card);
         } else {
           acc.push({
             category: card.category,
-            subCategory: card.subCategory,
+            subCategory: card.subcategory,
             questions: [card],
             // answerOptions: card.answerOptions,
           });
@@ -222,10 +190,10 @@ export default function Dashboard() {
             onClose={handleCloseModal}
             subCategoryItems={selectedSubCategory.questions.map((q) => ({
               id: q.id,
-              subCategory: q.subCategory,
+              subCategory: q.subcategory,
               title: q.question,
               question: q.answer,
-              options: q.answerOptions,
+              options: q.answerOption,
               answer: q.answer,
             }))}
           />

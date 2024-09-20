@@ -7,7 +7,6 @@ import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
 import axios from "axios";
 import {useAtom} from "jotai";
-import {QuizCard} from "@/app/components/ui/admin-card";
 import {initialQuizCardList} from "@/app/atom/atom";
 
 interface GameCardProps {
@@ -29,7 +28,6 @@ interface GameCardProps {
   }[];
   admin?: boolean;
   createCard?: boolean;
-  quizCardList: QuizCard[];
 }
 
 const categoryOptions = [
@@ -128,7 +126,7 @@ export default function GameCard({
 
   const handleSave = () => {
     const payload = {
-        // subCategory: editedTitle,
+        subcategory: editedTitle,
         category: editedCategory,
         question: editedQuestion,
         answer: editedAnswer,
