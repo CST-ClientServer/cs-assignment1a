@@ -230,7 +230,7 @@ export default function Dashboard() {
               <Image
                 src={
                   card.questions[0].file
-                    ? "http://localhost:8081/uploadFiles/" +
+                    ? "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
                       card.questions[0].file.savedName
                     : defaultImageUrl
                 }
