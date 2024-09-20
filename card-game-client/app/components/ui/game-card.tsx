@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Card from "./card";
-import { cn } from "@/app/lib/utils";
+import { cn, defaultImageUrl } from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
 import axios from "axios";
-import {useAtom} from "jotai";
-import {QuizCard} from "@/app/components/ui/admin-card";
-import {initialQuizCardList} from "@/app/atom/atom";
+import { useAtom } from "jotai";
+import { QuizCard } from "@/app/components/ui/admin-card";
+import { initialQuizCardList } from "@/app/atom/atom";
 
 interface GameCardProps {
   title?: string;
@@ -29,7 +29,7 @@ interface GameCardProps {
   }[];
   admin?: boolean;
   createCard?: boolean;
-  quizCardList: QuizCard[];
+  quizCardList?: QuizCard[];
 }
 
 const categoryOptions = [
@@ -68,9 +68,10 @@ export default function GameCard({
   const [editedQuestion, setEditedQuestion] = useState(question || "");
   const [editedCategory, setEditedCategory] = useState(category || "");
   const [editedAnswer, setEditedAnswer] = useState(answer || "");
-  const [imageUrl, setImageUrl] = useState("http://localhost:8081/uploadFiles/" + image);
+  const [imageUrl, setImageUrl] = useState<string>(
+    "http://localhost:8081/uploadFiles/" + image
+  );
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-
 
   const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
 
@@ -125,30 +126,32 @@ export default function GameCard({
     }
   };
 
-
   const handleSave = () => {
     const payload = {
-        // subCategory: editedTitle,
-        category: editedCategory,
-        question: editedQuestion,
-        answer: editedAnswer,
-        answerOption: editedOptions.toString(),
-        file: uploadFile,
+      // subCategory: editedTitle,
+      category: editedCategory,
+      question: editedQuestion,
+      answer: editedAnswer,
+      answerOption: editedOptions.toString(),
+      file: uploadFile,
     };
 
 
     axios({
-      method: 'post',
-      url: '/card/insert',
+      method: "post",
+      url: "/card/insert",
       data: payload,
-      headers: {"Content-Type": "multipart/form-data"}
-    }).then((response) => {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then((response) => {
         setAddedCardList([...addedCardList, response.data]);
-    }).catch(error => {
-      console.error('There was an error!', error);
-    }).finally(() => {
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      })
+      .finally(() => {
         onClose?.();
-    });
+      });
   };
 
   const handleDelete = () =>{
@@ -265,14 +268,12 @@ export default function GameCard({
             )}
           </h2>
           <Image
-            src={
-              imageUrl ||
-              "https://nextjs.org/_next/image?url=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Fv1723581090%2Ffront%2Fnext-conf-2024%2Ftakeover.png&w=3840&q=75"
-            }
+            src={imageUrl || defaultImageUrl}
             width={200}
             height={200}
-            alt={""}
+            alt={"Quiz card image"}
             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+            onError={() => setImageUrl(defaultImageUrl)}
           />
           {admin && (
             <div>

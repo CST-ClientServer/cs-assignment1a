@@ -5,6 +5,7 @@ import Header from "../components/header/header";
 import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
 import Image from "next/image";
+import { defaultImageUrl } from "@/app/lib/utils";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
@@ -17,11 +18,11 @@ interface Category {
 }
 
 interface FileObject {
-    originalName: string;
-    savedPath: string;
-    savedName: string;
-    size: string;
-    extension: string;
+  originalName: string;
+  savedPath: string;
+  savedName: string;
+  size: string;
+  extension: string;
 }
 
 interface QuizCardFromDB {
@@ -107,36 +108,39 @@ export default function Dashboard() {
 
   //Cards retrieve from db
   useEffect(() => {
-    axios.get('/card/getAll')
-    .then((response) => {
-
+    axios
+      .get("/card/getAll")
+      .then((response) => {
         response.data.forEach((element: QuizCardFromDB) => {
-            element.category = JSON.parse(element.category);
-            if (element.file != null) {
-                element.file = JSON.parse(element.file);
-            }
-            if (typeof element.answerOption === "string") {
-                element.answerOption = element.answerOption.split(",");
-            }
+          element.category = JSON.parse(element.category);
+          if (element.file != null) {
+            element.file = JSON.parse(element.file);
+          }
+          if (typeof element.answerOption === "string") {
+            element.answerOption = element.answerOption.split(",");
+          }
         });
 
-      setQuizCardList(response.data);
-      console.log(response.data);
-  }).catch((error) => {
-      console.error('There was an error!', error);
-  });
+        setQuizCardList(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
   }, []);
 
-    //categoryCard retrieve from db
-    useEffect(() => {
-        axios.get('/card/getAllCategory')
-        .then((response) => {
+  //categoryCard retrieve from db
+  useEffect(() => {
+    axios
+      .get("/card/getAllCategory")
+      .then((response) => {
         setCategoryCards(response.data);
         console.log(response.data);
-    }).catch((error) => {
-        console.error('There was an error!', error);
-    });
-    }, []);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }, []);
 
   const handleCategoryChange = (categoryId: number | "All") => {
     setSelectedCategory(categoryId);
@@ -195,10 +199,18 @@ export default function Dashboard() {
                 <span className="text-md">{card.subCategory}</span>
               </h1>
               <Image
-                src={card.questions[0].file ? "http://localhost:8081/uploadFiles/" + card.questions[0].file.savedName : "https://nextjs.org/icons/next.svg"}
+                src={
+                  card.questions[0].file
+                    ? "http://localhost:8081/uploadFiles/" +
+                      card.questions[0].file.savedName
+                    : defaultImageUrl
+                }
                 alt="image"
                 width={150}
                 height={100}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = defaultImageUrl;
+                }}
               />
             </Card>
           ))}

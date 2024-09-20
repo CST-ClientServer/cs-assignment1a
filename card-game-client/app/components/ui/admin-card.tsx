@@ -11,8 +11,10 @@ import Modal from "react-modal";
 import GameCard from "./game-card";
 import Image from "next/image";
 import axios from "axios";
-import {useAtom} from "jotai";
-import {initialQuizCardList} from "@/app/atom/atom";
+import { useAtom } from "jotai";
+import { initialQuizCardList } from "@/app/atom/atom";
+import { defaultImageUrl } from "@/app/lib/utils";
+import { ThreeDots } from "react-loader-spinner";
 
 export interface Category {
   id: number;
@@ -53,39 +55,51 @@ interface AdminCardProps {
 
 export default function AdminCard(categoryName: AdminCardProps) {
   const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
-  const [filteredCardData, setFilteredCardData] = useState<QuizCard[]>(quizCardList);
+  const [filteredCardData, setFilteredCardData] =
+    useState<QuizCard[]>(quizCardList);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [selectedCard, setSelectedCard] = useState<QuizCard | undefined>(
     undefined
   );
   const [addedCardList] = useAtom(initialQuizCardList);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [imageError, setImageError] = useState<{ [key: number]: boolean }>({});
+  const handleImageError = (id: number) => {
+    setImageError((prev) => ({ ...prev, [id]: true }));
+  };
 
   useEffect(() => {
-    console.log("Triggered")
-    axios.get('/card/getAll')
-        .then((response) => {
-          response.data.forEach((element: QuizCardFromDB) => {
-            element.category = JSON.parse(element.category);
-            if (element.file != null) {
-              element.file = JSON.parse(element.file);
-            }
-            if (typeof element.answerOption === "string") {
-              element.answerOption = element.answerOption.split(",");
-            }
-          });
-          setQuizCardList(response.data);
-        }).catch((error) => {
-      console.error('There was an error!', error);
-    });
+    console.log("Triggered");
+    setIsLoading(true);
+    axios
+      .get("/card/getAll")
+      .then((response) => {
+        response.data.forEach((element: QuizCardFromDB) => {
+          element.category = JSON.parse(element.category);
+          if (element.file != null) {
+            element.file = JSON.parse(element.file);
+          }
+          if (typeof element.answerOption === "string") {
+            element.answerOption = element.answerOption.split(",");
+          }
+        });
+        setQuizCardList(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [addedCardList]);
-
 
   useEffect(() => {
     if (categoryName.categoryName === "All") {
       setFilteredCardData(quizCardList);
     } else {
       setFilteredCardData(
-          quizCardList.filter(
+        quizCardList.filter(
           (quizCard) => quizCard.category.category === categoryName.categoryName
         )
       );
@@ -110,40 +124,63 @@ export default function AdminCard(categoryName: AdminCardProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredCardData.map((filteredCardData) => (
-            <TableRow
-              key={filteredCardData.id}
-              onClick={() => {
-                setModalIsOpen(true);
-                setSelectedCard(filteredCardData);
-              }}
-              className="cursor-pointer"
-            >
-              <TableCell className="font-medium">
-                {filteredCardData.id}
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <div className="flex items-center justify-center h-full">
+                  <ThreeDots
+                    visible={true}
+                    height="30"
+                    width="30"
+                    color="#f27f7f"
+                    radius="5"
+                    ariaLabel="three-dots-loading"
+                    wrapperStyle={{ margin: "auto" }}
+                  />
+                </div>
               </TableCell>
-              <TableCell>
-                <Image
-                  src={"http://localhost:8081/uploadFiles/" + filteredCardData.file?.savedName || ""}
-                  alt={filteredCardData.subCategory || ""}
-                  width={50}
-                  height={50}
-                />
-              </TableCell>
-              <TableCell>{filteredCardData.category.category}</TableCell>
-              <TableCell>{filteredCardData.subCategory}</TableCell>
-              <TableCell>{filteredCardData.question}</TableCell>
             </TableRow>
-          ))}
-          {filteredCardData.length === 0 && (
+          ) : filteredCardData.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={4}
+                colSpan={5}
                 className="text-center pt-6 text-xs font-thin"
               >
                 No data found
               </TableCell>
             </TableRow>
+          ) : (
+            filteredCardData.map((filteredCardData) => (
+              <TableRow
+                key={filteredCardData.id}
+                onClick={() => {
+                  setModalIsOpen(true);
+                  setSelectedCard(filteredCardData);
+                }}
+                className="cursor-pointer"
+              >
+                <TableCell className="font-medium">
+                  {filteredCardData.id}
+                </TableCell>
+                <TableCell>
+                  <Image
+                    src={
+                      imageError[filteredCardData.id]
+                        ? defaultImageUrl
+                        : "http://localhost:8081/uploadFiles/" +
+                          (filteredCardData.file?.savedName || "")
+                    }
+                    alt={filteredCardData.subCategory || ""}
+                    width={50}
+                    height={50}
+                    onError={() => handleImageError(filteredCardData.id)}
+                  />
+                </TableCell>
+                <TableCell>{filteredCardData.category.category}</TableCell>
+                <TableCell>{filteredCardData.subCategory}</TableCell>
+                <TableCell>{filteredCardData.question}</TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>
