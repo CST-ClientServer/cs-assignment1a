@@ -72,6 +72,7 @@ export default function GameCard({
         "http://localhost:8081/uploadFiles/" + image
     );
     const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
 
@@ -126,8 +127,13 @@ export default function GameCard({
         }
     };
 
-    const handleEdit = () => {
-        setEditing(true);
+    const handleEdit = (cardId: number | undefined) => {
+        if (cardId !== undefined) { // Cards don't have ID right now? Only works now if ! is removed.
+            setSelectedCardId(cardId);
+            setEditing(true);
+        } else {
+            console.warn("Card ID is undefined");
+        }
     };
 
     const handleCancelEdit = () => {
@@ -142,6 +148,7 @@ export default function GameCard({
     const handleSave = () => {
         const payload = {
             // subCategory: editedTitle,
+            id: selectedCardId,
             category: editedCategory,
             question: editedQuestion,
             answer: editedAnswer,
@@ -150,8 +157,8 @@ export default function GameCard({
         };
 
         axios({
-            method: "post",
-            url: "/card/insert",
+            method: editing ? "put" : "post",
+            url: editing ? "/card/update" : "/card/insert",
             data: payload,
             headers: {"Content-Type": "multipart/form-data"},
         })
@@ -164,7 +171,7 @@ export default function GameCard({
             .finally(() => {
                 onClose?.();
             });
-    };
+    }
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -363,7 +370,7 @@ export default function GameCard({
                                 className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                                 onClick={() => {
                                     if (!editing) {
-                                        handleEdit();
+                                        handleEdit(currentItem?.id);
                                     } else {
                                         handleCancelEdit();
                                     }
@@ -391,4 +398,5 @@ export default function GameCard({
             )}
         </Card>
     );
-}
+};
+
