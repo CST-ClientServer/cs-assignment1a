@@ -33,11 +33,11 @@ public class SignupServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        IvParameterSpec iv = generateIv();
+//        IvParameterSpec iv = generateIv();
         SecretKey secretKey;
         try {
             secretKey = generateKey();
-            byte[] encryptedPassword = encrypt(password, secretKey, iv);
+            byte[] encryptedPassword = encrypt(password, secretKey);
 
             String encryptedPasswordBase64 = Base64.getEncoder().encodeToString(encryptedPassword);
 
@@ -87,26 +87,19 @@ public class SignupServlet extends HttpServlet {
         return new IvParameterSpec(iv);
     }
 
-    private static SecretKey generateKey() throws NoSuchAlgorithmException {
+    static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(256);
         return keyGenerator.generateKey();
     }
 
-    private static byte[] encrypt(String plainText, SecretKey key, IvParameterSpec iv)
+    private static byte[] encrypt(String plainText, SecretKey key)
             throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static String decrypt(byte[] cipherText, SecretKey key, IvParameterSpec iv)
-            throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, key, iv);
-        byte[] plainText = cipher.doFinal(cipherText);
-        return new String(plainText, StandardCharsets.UTF_8);
-    }
+
 }

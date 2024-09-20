@@ -10,7 +10,7 @@ export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const userData = { username, email, password };
@@ -39,7 +39,7 @@ export default function SignupForm() {
   };
   return (
       <Card className="w-72 h-90 justify-center">
-        <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleSignupSubmit}>
           <div className="flex-grow flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <p>Username</p>
