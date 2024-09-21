@@ -6,7 +6,7 @@ import Header from "../components/header/header";
 import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
 import Image from "next/image";
-import { defaultImageUrl } from "@/app/lib/utils";
+import {defaultImageUrl, fileUploadUrl, videoFileExtensions} from "@/app/lib/utils";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
@@ -144,22 +144,32 @@ export default function Dashboard() {
                                 </span>
                             </h1>
                             <div className="flex justify-center items-center w-full h-40">
-                                <Image
-                                    src={
-                                        imageError[card.category.id]
-                                            ? defaultImageUrl
-                                            : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${
-                                                  card.questions[0] || ""
-                                              }`
-                                    }
-                                    alt={`${card.subCategory} image`}
-                                    className="object-cover flex flex-wrap"
-                                    width={230}
-                                    height={230}
-                                    onError={() =>
-                                        handleImageError(card.category.id)
-                                    }
-                                />
+                                {card.questions[0].file?.extension &&
+                                videoFileExtensions.includes(card.questions[0].file.extension) ? (
+                                    <video
+                                        src={fileUploadUrl + card.questions[0].file.savedName}
+                                        controls={false}
+                                        width={230}
+                                        height={230}
+                                    />
+                                ) : (
+                                    <Image
+                                        src={
+                                            imageError[card.category.id]
+                                                ? defaultImageUrl
+                                                : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${
+                                                    card.questions[0].file?.savedName || ""
+                                                }`
+                                        }
+                                        alt={`${card.subCategory} image`}
+                                        className="object-cover flex flex-wrap"
+                                        width={230}
+                                        height={230}
+                                        onError={() =>
+                                            handleImageError(card.category.id)
+                                        }
+                                    />
+                                )}
                             </div>
                         </Card>
                     ))}
