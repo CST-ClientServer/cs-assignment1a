@@ -13,7 +13,7 @@ import Image from "next/image";
 import axios from "axios";
 import { useAtom } from "jotai";
 import { initialQuizCardList } from "@/app/atom/atom";
-import { defaultImageUrl } from "@/app/lib/utils";
+import { defaultImageUrl, videoFileExtensions, fileUploadUrl } from "@/app/lib/utils";
 import { ThreeDots } from "react-loader-spinner";
 
 export interface Category {
@@ -167,23 +167,31 @@ export default function AdminCard(categoryName: AdminCardProps) {
                                     {filteredCardData.id}
                                 </TableCell>
                                 <TableCell>
-                                    <Image
-                                        src={
-                                            imageError[filteredCardData.id]
-                                                ? defaultImageUrl
-                                                : "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
-                                                  (filteredCardData.file
-                                                      ?.savedName || "")
-                                        }
-                                        alt={filteredCardData.subCategory || ""}
-                                        width={50}
-                                        height={50}
-                                        onError={() =>
-                                            handleImageError(
-                                                filteredCardData.id,
-                                            )
-                                        }
-                                    />
+                                    {filteredCardData.file?.extension &&
+                                     videoFileExtensions.includes(filteredCardData.file.extension) ? (
+                                        <video
+                                            src={fileUploadUrl + filteredCardData.file.savedName}
+                                            controls={false}
+                                            width={50}
+                                            height={50}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={
+                                                imageError[filteredCardData.id]
+                                                    ? defaultImageUrl
+                                                    : fileUploadUrl + (filteredCardData.file?.savedName || "")
+                                            }
+                                            alt={filteredCardData.subCategory || ""}
+                                            width={50}
+                                            height={50}
+                                            onError={() =>
+                                                handleImageError(
+                                                    filteredCardData.id,
+                                                )
+                                            }
+                                        />
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                     {filteredCardData.category.category}
