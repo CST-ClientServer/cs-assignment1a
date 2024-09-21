@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Card from "./card";
-import { cn, defaultImageUrl } from "@/app/lib/utils";
+import { cn, defaultImageUrl, fileUploadUrl } from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
@@ -16,7 +16,7 @@ interface GameCardProps {
     question?: string;
     answer?: string;
     options?: string[];
-    image?: React.ReactNode;
+    media?: React.ReactNode;
     className?: string;
     onClose?: () => void;
     subCategoryItems?: {
@@ -51,7 +51,7 @@ export default function GameCard({
     onClose,
     subCategoryItems,
     admin,
-    image,
+    media,
     createCard,
 }: GameCardProps) {
     const timeLimit = 5;
@@ -68,10 +68,7 @@ export default function GameCard({
     const [editedQuestion, setEditedQuestion] = useState(question || "");
     const [editedCategory, setEditedCategory] = useState(category || "");
     const [editedAnswer, setEditedAnswer] = useState(answer || "");
-    const [imageUrl, setImageUrl] = useState<string>(
-        "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
-            image,
-    );
+    const [mediaUrl, setMediaUrl] = useState<string>(fileUploadUrl + media);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
@@ -159,7 +156,7 @@ export default function GameCard({
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImageUrl(reader.result as string);
+                setMediaUrl(reader.result as string);
                 setUploadFile(file);
             };
             reader.readAsDataURL(file);
@@ -167,6 +164,13 @@ export default function GameCard({
     };
 
     const currentItem = subCategoryItems?.[currentItemIndex];
+
+    const getFileExtension = (url: string) => { return url.substring(url.lastIndexOf(".") + 1).toLowerCase(); }
+    const imageFileExtensions = ["apng", "png", "avif", "gif", "jpg", "jpeg",
+        "jfif", "pjpeg", "pjp", "svg", "webp",
+    ];
+    const videoFileExtensions = ["mp4", "webm", "m4p", "m4v"];
+    const audioFileExtensions = ["mp3", "ogg", "wav", "m4a", "m4b", "m4p", "oga", "mogg", ];
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -277,14 +281,47 @@ export default function GameCard({
                             `${currentItem?.title}`
                         )}
                     </h2>
-                    <Image
-                        src={imageUrl}
-                        width={200}
-                        height={200}
-                        alt={"Quiz card image"}
-                        className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
-                        onError={() => setImageUrl(defaultImageUrl)}
-                    />
+                    { videoFileExtensions.includes(getFileExtension((mediaUrl))) && (
+                        <video
+                            src={mediaUrl}
+                            controls={true}
+                            autoPlay={true}
+                            width={200}
+                            height={200}
+                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    )}
+                    { audioFileExtensions.includes(getFileExtension((mediaUrl))) && (
+                        <audio
+                            src={mediaUrl}
+                            autoPlay={true}
+                            controls={true}
+                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    )}
+                    { imageFileExtensions.includes(getFileExtension(mediaUrl)) && (
+                        <Image
+                            src={mediaUrl}
+                            width={200}
+                            height={200}
+                            alt={"Quiz card image"}
+                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    )}
+                    {   !videoFileExtensions.includes(getFileExtension((mediaUrl))) &&
+                        !audioFileExtensions.includes(getFileExtension((mediaUrl))) &&
+                        !imageFileExtensions.includes(getFileExtension(mediaUrl)) && (
+                            <Image
+                                src={defaultImageUrl}
+                                width={200}
+                                height={200}
+                                alt={"Quiz card image"}
+                                className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            />
+                    )}
                     {admin && (
                         <div>
                             <input

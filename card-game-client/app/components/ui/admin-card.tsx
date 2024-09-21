@@ -215,7 +215,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
                         category={selectedCard.category.category}
                         options={selectedCard.answerOption}
                         onClose={handleCloseModal}
-                        image={selectedCard.file?.savedName}
+                        media={selectedCard.file?.savedName}
                         quizCardList={quizCardList}
                         admin
                     />
