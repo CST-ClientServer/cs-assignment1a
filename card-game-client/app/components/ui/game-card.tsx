@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Card from "./card";
-import { cn, defaultImageUrl, fileUploadUrl } from "@/app/lib/utils";
+import { cn, defaultImageUrl, fileUploadUrl, videoFileExtensions, audioFileExtensions } from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
@@ -166,11 +166,6 @@ export default function GameCard({
     const currentItem = subCategoryItems?.[currentItemIndex];
 
     const getFileExtension = (url: string) => { return url.substring(url.lastIndexOf(".") + 1).toLowerCase(); }
-    const imageFileExtensions = ["apng", "png", "avif", "gif", "jpg", "jpeg",
-        "jfif", "pjpeg", "pjp", "svg", "webp",
-    ];
-    const videoFileExtensions = ["mp4", "webm", "m4p", "m4v"];
-    const audioFileExtensions = ["mp3", "ogg", "wav", "m4a", "m4b", "m4p", "oga", "mogg", ];
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -281,7 +276,7 @@ export default function GameCard({
                             `${currentItem?.title}`
                         )}
                     </h2>
-                    { videoFileExtensions.includes(getFileExtension((mediaUrl))) && (
+                    { videoFileExtensions.includes(getFileExtension((mediaUrl))) ? (
                         <video
                             src={mediaUrl}
                             controls={true}
@@ -291,8 +286,7 @@ export default function GameCard({
                             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
-                    )}
-                    { audioFileExtensions.includes(getFileExtension((mediaUrl))) && (
+                    ) : audioFileExtensions.includes(getFileExtension(mediaUrl)) ? (
                         <audio
                             src={mediaUrl}
                             autoPlay={true}
@@ -300,8 +294,7 @@ export default function GameCard({
                             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
-                    )}
-                    { imageFileExtensions.includes(getFileExtension(mediaUrl)) && (
+                    ) : (
                         <Image
                             src={mediaUrl}
                             width={200}
@@ -310,17 +303,6 @@ export default function GameCard({
                             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
-                    )}
-                    {   !videoFileExtensions.includes(getFileExtension((mediaUrl))) &&
-                        !audioFileExtensions.includes(getFileExtension((mediaUrl))) &&
-                        !imageFileExtensions.includes(getFileExtension(mediaUrl)) && (
-                            <Image
-                                src={defaultImageUrl}
-                                width={200}
-                                height={200}
-                                alt={"Quiz card image"}
-                                className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
-                            />
                     )}
                     {admin && (
                         <div>
