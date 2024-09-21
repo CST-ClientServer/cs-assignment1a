@@ -16,7 +16,7 @@ public class CardDao {
     ObjectMapper mapper = new ObjectMapper();
 
     public boolean insertCard(Card card) throws SQLException {
-        String sql = "INSERT INTO card (question, answer_option, answer, file, category, subcategory) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO card (question, answer_option, answer, file, category, subCategory) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -25,7 +25,7 @@ public class CardDao {
             statement.setString(3, card.getAnswer());
             statement.setString(4, card.getFile());
             statement.setString(5, card.getCategory());
-            statement.setString(6, card.getSubcategory());
+            statement.setString(6, card.getSubCategory());
 
             return statement.executeUpdate() > 0;
         }
@@ -44,7 +44,7 @@ public class CardDao {
                 String question = resultSet.getString("question");
                 String answerOption = resultSet.getString("answer_option");
                 String answer = resultSet.getString("answer");
-                String subcategory = resultSet.getString("subcategory");
+                String subCategory = resultSet.getString("subCategory");
 
                 String category = resultSet.getString("category");
                 realCategory = new Category(category);
@@ -53,7 +53,7 @@ public class CardDao {
 
                 String file = resultSet.getString("file");
 
-                Card card = new Card(id, question, answerOption, answer, file, category, subcategory);
+                Card card = new Card(id, question, answerOption, answer, file, category, subCategory);
                 listCard.add(card);
             }
         } catch (JsonProcessingException e) {
@@ -79,9 +79,9 @@ public class CardDao {
                     String answer = resultSet.getString("answer");
                     String category = resultSet.getString("category");
                     String file = resultSet.getString("file");
-                    String subcategory = resultSet.getString("subcategory");
+                    String subCategory = resultSet.getString("subCategory");
 
-                    card = new Card(id, question, answerOption, answer, file, category, subcategory);
+                    card = new Card(id, question, answerOption, answer, file, category, subCategory);
                 }
             }
         }
@@ -106,9 +106,9 @@ public class CardDao {
                     String answer = resultSet.getString("answer");
                     String categoryResult = resultSet.getString("category");
                     String file = resultSet.getString("file");
-                    String subcategoryResult = resultSet.getString("subcategory");
+                    String subCategoryResult = resultSet.getString("subCategory");
 
-                    Card card = new Card(id, question, answerOption, answer, file, categoryResult, subcategoryResult);
+                    Card card = new Card(id, question, answerOption, answer, file, categoryResult, subCategoryResult);
                     listCard.add(card);
                 }
             }
@@ -118,7 +118,7 @@ public class CardDao {
     }
 
     public int updateCard(Card card) throws SQLException {
-        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subcategory = ?, WHERE id = ?";
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ? WHERE id = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -128,7 +128,7 @@ public class CardDao {
             statement.setString(3, card.getAnswer());
             statement.setString(4, card.getFile());
             statement.setString(5, card.getCategory());
-            statement.setString(6, card.getSubcategory());
+            statement.setString(6, card.getSubCategory());
             statement.setInt(7, card.getId());
 
             return statement.executeUpdate();

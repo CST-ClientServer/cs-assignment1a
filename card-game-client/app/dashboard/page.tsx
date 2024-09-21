@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useLayoutEffect} from "react";
 import Header from "../components/header/header";
 import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
@@ -11,6 +11,7 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
 import Modal from "react-modal";
 import axios from "axios";
+import {ThreeDots} from "react-loader-spinner";
 
 interface Category {
   id: number;
@@ -52,6 +53,8 @@ interface SubCategoryGroup {
 }
 
 export default function Dashboard() {
+  // const [gamer] = useAtom(initialGamer);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<number | "All">(
     "All"
   );
@@ -67,6 +70,16 @@ export default function Dashboard() {
 
   // Cards retrieve from db
   const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
+
+  useLayoutEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "/login";
+    }else{
+        setIsLoading(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     const groupedCards = quizCardList.reduce<SubCategoryGroup[]>(
@@ -155,8 +168,24 @@ export default function Dashboard() {
     setSelectedSubCategory(null);
   };
 
+  if (isLoading) {
+    return (
+        <div className="flex items-center justify-center h-screen">
+          <ThreeDots
+              visible={true}
+              height="30"
+              width="30"
+              color="#f27f7f"
+              radius="5"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{ margin: "auto" }}
+          />
+        </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-screen px-4 sm:px-6 md:px-10 dark:bg-zinc-900">
+      <div className="flex flex-col h-screen px-4 sm:px-6 md:px-10 dark:bg-zinc-900">
       <Header />
       <div className="flex-1">
         <div className="flex justify-end p-4">
@@ -201,7 +230,7 @@ export default function Dashboard() {
               <Image
                 src={
                   card.questions[0].file
-                    ? "http://localhost:8081/uploadFiles/" +
+                    ? "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
                       card.questions[0].file.savedName
                     : defaultImageUrl
                 }

@@ -167,7 +167,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
                     src={
                       imageError[filteredCardData.id]
                         ? defaultImageUrl
-                        : "http://localhost:8081/uploadFiles/" +
+                        : "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
                           (filteredCardData.file?.savedName || "")
                     }
                     alt={filteredCardData.subCategory || ""}

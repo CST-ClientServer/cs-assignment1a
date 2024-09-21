@@ -1,41 +1,68 @@
 "use client";
-import React, {useState} from "react";
+import React, {FormEvent} from "react";
 import Card from "./card";
 import { Button } from "./button";
+import axios from "axios";
+import {useSetAtom} from "jotai";
+import {initialGamer} from "@/app/atom/atom";
+import {useRouter} from "next/navigation";
+
+export interface Gamer {
+    id: number;
+    email: string;
+    role: string;
+    firstName: string;
+    lastName: string;
+}
+
+export const initialGamerAtom = {
+    id: 0,
+    email: "",
+    role: "",
+    firstName: "",
+    lastName: "",
+};
 
 export default function LoginForm() {
+    const setGamer = useSetAtom(initialGamer);
+    const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const handleLoginSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const userData = { email, password };
+    const email = document.getElementById("email") as HTMLInputElement;
+    const password = document.getElementById("password") as HTMLInputElement;
 
-    try {
-      const response = await fetch('/login-submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(userData).toString(),
-      });
+    const payload = {
+        email: email.value,
+        password: password.value,
+    };
 
-      if (response.ok) {
+    axios({
+        method: "post",
+        url: "/gamer/login",
+        data: payload,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    }).then((response) => {
+        localStorage.setItem("token", response.data.token);
+        setGamer({
+            id: response.data.id,
+            email: response.data.email,
+            role: response.data.role,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName
+        })
+        router.push("/dashboard");
+    }).catch((error) => {
+        console.log(error);
+        alert("Invalid email or password");
+    })
+  }
 
-        window.location.href = "/dashboard";
-        console.log('login successful');
-      } else {
-        const error = await response.json();
-        console.error('Error:', error);
-      }
-    } catch (error) {
-      console.error('Network Error:', error);
-    }
-  };
+
   return (
     <Card className="w-72 h-72 justify-center">
-      <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleLoginSubmit}>
+      <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleLogin}>
         <div className="flex-grow flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <p>Email</p>
@@ -44,7 +71,6 @@ export default function LoginForm() {
               type="text"
               placeholder="Email"
               className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
-              onChange={(e)=>{setEmail(e.target.value)}}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -54,7 +80,6 @@ export default function LoginForm() {
               type="password"
               placeholder="Password"
               className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
-              onChange={(e)=>{setPassword(e.target.value)}}
             />
           </div>
         </div>
@@ -63,7 +88,7 @@ export default function LoginForm() {
           type="submit"
           className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
         >
-          Log in
+          Sign in
         </Button>
       </form>
     </Card>
