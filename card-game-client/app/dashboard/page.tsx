@@ -189,6 +189,9 @@ export default function Dashboard() {
                                 options: q.answerOptions,
                             }),
                         )}
+                        answer={selectedSubCategory.questions
+                            .map((q) => q.answer)
+                            .join(", ")}
                     />
                 )}
             </Modal>
