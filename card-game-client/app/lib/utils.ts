@@ -10,3 +10,9 @@ export const defaultImageUrl =
 
 export const fileUploadUrl =
     "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/"
+
+export const imageFileExtensions = ["apng", "png", "avif", "gif", "jpg", "jpeg",
+    "jfif", "pjpeg", "pjp", "svg", "webp"
+];
+export const videoFileExtensions = ["mp4", "webm", "m4p", "m4v"];
+export const audioFileExtensions = ["mp3", "ogg", "wav", "m4a", "m4b", "m4p", "oga", "mogg", ];
