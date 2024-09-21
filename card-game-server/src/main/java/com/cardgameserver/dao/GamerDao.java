@@ -28,11 +28,9 @@ public class GamerDao {
     public List<Gamer> listAllGamer() throws SQLException {
         List<Gamer> listGamer = new ArrayList<>();
         String sql = "SELECT * FROM gamer";
-        System.out.println("5 --- IM HEREEEE !!!!");
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
-            System.out.println("6 --- IM HEREEEE !!!!");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
@@ -41,7 +39,6 @@ public class GamerDao {
                 String email = resultSet.getString("email");
                 String password = resultSet.getString("password");
                 Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
-                System.out.println("7 --- IM HEREEEE !!!!");
                 Gamer gamer = new Gamer(id, firstName, lastName, email, role, password, null);
                 listGamer.add(gamer);
             }
