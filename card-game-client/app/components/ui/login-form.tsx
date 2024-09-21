@@ -33,6 +33,11 @@ export default function LoginForm() {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
 
+      if (!email || !password) {
+          window.alert("email and password can not be empty!");
+          return;
+      }
+
     const payload = {
         email: email.value,
         password: password.value,

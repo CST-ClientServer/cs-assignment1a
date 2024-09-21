@@ -22,7 +22,7 @@ import java.util.Base64;
 
 import static com.cardgameserver.controller.SignupServlet.generateKey;
 
-@WebServlet(name = "LoginServlet", value = "/login-submit")
+@WebServlet(name = "LoginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
 
     private GamerDao gamerDao = new GamerDao();

@@ -1,45 +1,58 @@
 "use client";
-
-import React, { useState } from "react";
+import React, {FormEvent} from "react";
 import Card from "./card";
 import { Button } from "./button";
+import axios from "axios";
+import {useSetAtom} from "jotai";
+import {initialGamer} from "@/app/atom/atom";
+import {useRouter} from "next/navigation";
 
 
 export default function SignupForm() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const setGamer = useSetAtom(initialGamer);
+  const router = useRouter();
 
-  const handleSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const userData = { username, email, password };
+    const username = document.getElementById("username") as HTMLInputElement;
+    const email = document.getElementById("email") as HTMLInputElement;
+    const password = document.getElementById("password") as HTMLInputElement;
 
-    try {
-      const response = await fetch('/signup-submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(userData).toString(),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        window.location.href = "/dashboard";
-        console.log('User created:', result);
-      } else {
-        const error = await response.json();
-        console.error('Error:', error);
-      }
-    } catch (error) {
-      console.error('Network Error:', error);
+    if (!username || !email || !password) {
+      window.alert("username, email and password can not be empty!");
+      return;
     }
-    console.log(username, password);
-  };
+
+    const userData = {
+      username: username.value,
+      email: email.value,
+      password: password.value,
+    };
+
+    axios({
+      method: "post",
+      url: "/signup",
+      data: userData,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    }).then((response) => {
+      localStorage.setItem("token", response.data.token);
+      setGamer({
+        id: response.data.id,
+        email: response.data.email,
+        role: response.data.role,
+        firstName: response.data.firstName,
+        lastName: response.data.lastName
+      })
+      router.push("/dashboard");
+    }).catch((error) => {
+      console.log(error);
+      alert("fail to signup");
+    })
+  }
   return (
       <Card className="w-72 h-90 justify-center">
-        <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleSignupSubmit}>
+        <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleSignup}>
           <div className="flex-grow flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <p>Username</p>
@@ -48,7 +61,7 @@ export default function SignupForm() {
                   type="text"
                   placeholder="Username"
                   className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
-                  onChange={(e) => setUsername(e.target.value)}
+
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -58,7 +71,7 @@ export default function SignupForm() {
                   type="text"
                   placeholder="Email"
                   className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
-                  onChange={(e) => setEmail(e.target.value)}
+
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -68,7 +81,7 @@ export default function SignupForm() {
                   type="password"
                   placeholder="Password"
                   className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
-                  onChange={(e) => setPassword(e.target.value)}
+
               />
             </div>
           </div>

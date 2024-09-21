@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Base64;
 
-@WebServlet(name = "SignupServlet", value = "/signup-submit")
+@WebServlet(name = "SignupServlet", value = "/signup")
 public class SignupServlet extends HttpServlet {
 
     private GamerDao gamerDao = new GamerDao();
@@ -32,6 +32,10 @@ public class SignupServlet extends HttpServlet {
         String lastName = request.getParameter("username");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("{'get to bnack end': 'true'}");
 
 //        IvParameterSpec iv = generateIv();
         SecretKey secretKey;
@@ -46,9 +50,9 @@ public class SignupServlet extends HttpServlet {
             boolean isInserted = gamerDao.insertGamer(gamer);
 
             if (isInserted) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter out = response.getWriter();
+//                response.setContentType("application/json");
+//                response.setCharacterEncoding("UTF-8");
+//                PrintWriter out = response.getWriter();
                 out.println("{");
                 out.println("\"status\": \"success\",");
                 out.println("\"message\": \"User created successfully\",");
@@ -57,10 +61,10 @@ public class SignupServlet extends HttpServlet {
                 out.println("\"password\": \"" + password + "\"");
                 out.println("}");
             } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter out = response.getWriter();
+//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//                response.setContentType("application/json");
+//                response.setCharacterEncoding("UTF-8");
+//                PrintWriter out = response.getWriter();
                 out.println("{");
                 out.println("\"status\": \"error\",");
 
@@ -72,7 +76,7 @@ public class SignupServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            PrintWriter out = response.getWriter();
+//            PrintWriter out = response.getWriter();
             out.println("{");
             out.println("\"status\": \"error\",");
 
