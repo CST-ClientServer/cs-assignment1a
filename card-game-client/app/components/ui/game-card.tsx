@@ -291,7 +291,6 @@ export default function GameCard({
                             src={mediaUrl}
                             autoPlay={true}
                             controls={true}
-                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     ) : (
@@ -308,7 +307,7 @@ export default function GameCard({
                         <div>
                             <input
                                 type="file"
-                                accept="image/*, video/*"
+                                accept="image/*, video/*, audio/*"
                                 onChange={handleImageUpload}
                                 style={{ display: "none" }}
                                 id="imageUploadInput"
