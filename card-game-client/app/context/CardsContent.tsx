@@ -83,6 +83,15 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
+    const refetch = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            await Promise.all([fetchQuizCards(), fetchCategories()]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [fetchQuizCards, fetchCategories]);
+
     useLayoutEffect(() => {
         const fetchData = async () => {
             if (!hasFetched.current) {
@@ -109,6 +118,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
                 fetchCategories,
                 fetchQuizCards,
                 quizCardList,
+                refetch,
             }}
         >
             {children}
