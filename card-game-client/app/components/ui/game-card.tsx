@@ -15,6 +15,7 @@ import axios from "axios";
 import { useAtom } from "jotai";
 import { initialQuizCardList } from "@/app/atom/atom";
 import { QuizCard } from "@/app/lib/types";
+import { useCardsContext } from "@/app/context/CardsContent";
 
 interface GameCardProps {
     id?: number;
@@ -63,6 +64,7 @@ export default function GameCard({
     media,
     createCard,
 }: GameCardProps) {
+    const { refetch } = useCardsContext();
     const timeLimit = 5;
     const [checked, setChecked] = useState(false);
     const [timeLeft, setTimeLeft] = useState(timeLimit);
@@ -80,7 +82,7 @@ export default function GameCard({
     const [editedAnswer, setEditedAnswer] = useState(answer || "");
     const [mediaUrl, setMediaUrl] = useState<string>(fileUploadUrl + media);
     const [uploadFile, setUploadFile] = useState<File | null>(
-        (typeof media === "string" && media) ? new File([], media) : null
+        typeof media === "string" && media ? new File([], media) : null,
     );
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
@@ -148,7 +150,7 @@ export default function GameCard({
             media: mediaUrl,
         };
 
-        console.log(payload)
+        console.log(payload);
 
         axios({
             method: "post",
@@ -163,12 +165,12 @@ export default function GameCard({
                 console.error("There was an error!", error);
             })
             .finally(() => {
+                refetch();
                 setEditing(false);
                 setIsEditing(false);
                 onClose?.();
-            })
-
-    }
+            });
+    };
     const handleSave = () => {
         const payload = {
             subCategory: editedTitle,
@@ -193,9 +195,10 @@ export default function GameCard({
                 console.error("There was an error!", error);
             })
             .finally(() => {
+                refetch();
                 onClose?.();
             });
-    }
+    };
 
     const handleSaveOrEditing = () => {
         if (isEditing) {
@@ -224,6 +227,8 @@ export default function GameCard({
     const getFileExtension = (url: string) => {
         return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
     };
+
+    console.log("mediaUrl", mediaUrl);
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -370,13 +375,21 @@ export default function GameCard({
                     ) : (
                         <Image
                             src={
-                                fileUploadUrl +
-                                (currentItem?.media || String(media))
+                                editing
+                                    ? mediaUrl
+                                    : fileUploadUrl +
+                                      (currentItem?.media || String(media))
                             }
                             width={200}
                             height={200}
                             alt={"Quiz card image"}
-                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            className={cn([
+                                "rounded-md",
+                                mediaUrl === defaultImageUrl
+                                    ? "md:w-2/5"
+                                    : "md:w-4/5",
+                                "mb-6",
+                            ])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     )}
@@ -448,7 +461,7 @@ export default function GameCard({
                                   </div>
                               ))
                             : currentItem?.options.map((option, index) => (
-                                  <div key={index}>
+                                  <div key={index} className="w-full">
                                       <Button
                                           variant={
                                               selectedOption === index
@@ -460,7 +473,7 @@ export default function GameCard({
                                                       : "quiz"
                                                   : "outline"
                                           }
-                                          className="md:w-48 md:h-16"
+                                          className="w-full md:w-48 md:h-16 h-12 text-center whitespace-normal"
                                           onClick={() =>
                                               handleOptionClick(index)
                                           }
@@ -487,34 +500,94 @@ export default function GameCard({
                         </div>
                     )}
 
-                    <div className={cn(["pb-4", checked ? "pt-4" : "pt-8"])}>
+                    <div
+                        className={cn([
+                            "pb-4",
+                            "gap-x-2",
+                            checked ? "pt-4" : "pt-8",
+                            admin
+                                ? "flex justify-between items-center w-full"
+                                : "",
+                        ])}
+                    >
                         {admin && (
+                            <div className="flex items-center gap-x-2">
+                                <Button
+                                    className=" bg-red-700 text-white hover:bg-red-800 hover:text-white"
+                                    variant="outline"
+                                    onClick={() => {
+                                        const confirmed = window.confirm(
+                                            "Do you want to delete this card?",
+                                        );
+                                        if (!confirmed) {
+                                            return;
+                                        }
+                                        axios({
+                                            method: "get",
+                                            url: "/card/delete?id=" + id,
+                                        })
+                                            .then(() => {
+                                                console.log(id);
+                                                setAddedCardList(
+                                                    addedCardList.filter(
+                                                        (card) =>
+                                                            card.id !== id,
+                                                    ),
+                                                );
+                                            })
+                                            .catch((error) => {
+                                                console.error(
+                                                    "There was an error!",
+                                                    error,
+                                                );
+                                            })
+                                            .finally(() => {
+                                                refetch();
+                                                console.log("Deleted");
+                                                onClose?.();
+                                            });
+                                    }}
+                                >
+                                    Delete Card
+                                </Button>
+                            </div>
+                        )}
+
+                        <div>
+                            {admin && (
+                                <Button
+                                    variant="outline"
+                                    className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
+                                    onClick={() => {
+                                        setEditing(true);
+                                        setIsEditing(true);
+                                        console.log("@@@ CLicked");
+                                    }}
+                                    disabled={editing}
+                                >
+                                    Edit
+                                </Button>
+                            )}
                             <Button
                                 variant="outline"
                                 className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
-                                onClick={() => {
-                                    setEditing(true)
-                                    setIsEditing(true)
-                                    console.log("@@@ CLicked")
-                                }}
-                                disabled={editing}
+                                disabled={
+                                    admin ? false : selectedOption === null
+                                }
+                                onClick={
+                                    admin
+                                        ? handleSaveOrEditing
+                                        : handleNextClick
+                                }
                             >
-                                Edit
+                                {admin
+                                    ? "Save"
+                                    : currentItemIndex <
+                                      (subCategoryItems?.length ?? 0) - 1
+                                    ? "Next"
+                                    : "Finish"}
                             </Button>
-                        )}
-                        <Button
-                            variant="outline"
-                            className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
-                            disabled={admin ? false : selectedOption === null}
-                            onClick={admin ? handleSaveOrEditing : handleNextClick}
-                        >
-                            {admin
-                                ? "Save"
-                                : currentItemIndex <
-                                  (subCategoryItems?.length ?? 0) - 1
-                                ? "Next"
-                                : "Finish"}
-                        </Button>
+                        </div>
                     </div>
                 </div>
             ) : (

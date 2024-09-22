@@ -34,6 +34,7 @@ export interface CardsContextType {
     isLoading: boolean;
     fetchCategories: () => void;
     fetchQuizCards: () => void;
+    refetch: () => void;
 }
 
 export interface Card {
