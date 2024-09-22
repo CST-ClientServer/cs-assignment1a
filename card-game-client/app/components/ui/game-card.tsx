@@ -17,6 +17,7 @@ import { QuizCard } from "@/app/components/ui/admin-card";
 import { initialQuizCardList } from "@/app/atom/atom";
 
 interface GameCardProps {
+    id?: number;
     title?: string;
     category?: string;
     question?: string;
@@ -49,6 +50,7 @@ const categoryOptions = [
 ];
 
 export default function GameCard({
+    id,
     title,
     className,
     category,
@@ -67,6 +69,7 @@ export default function GameCard({
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [currentItemIndex, setCurrentItemIndex] = useState(0);
     const [editing, setEditing] = useState(createCard && admin);
+    const [isEditing, setIsEditing] = useState(false);
     const [editingOption, setEditingOption] = useState<number | null>(null);
     const [editedOptions, setEditedOptions] = useState(
         options || ["", "", "", ""],
@@ -131,6 +134,35 @@ export default function GameCard({
         }
     };
 
+    const handleEdit = () => {
+        const payload = {
+            id: id,
+            subCategory: editedTitle,
+            category: editedCategory,
+            question: editedQuestion,
+            answer: editedAnswer,
+            answerOption: editedOptions.toString(),
+            file: uploadFile,
+            media: mediaUrl,
+        };
+
+        axios({
+            method: "post",
+            url: "/card/update?id=" + id,
+            data: payload,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+            .then((response) => {
+                setAddedCardList([...addedCardList, response.data]);
+            })
+            .catch((error) => {
+                console.error("There was an error!", error);
+            })
+            .finally(() => {
+                onClose?.();
+            })
+
+    }
     const handleSave = () => {
         const payload = {
             subCategory: editedTitle,
@@ -157,6 +189,16 @@ export default function GameCard({
             .finally(() => {
                 onClose?.();
             });
+    }
+
+    const handleSaveOrEditing = () => {
+        if (isEditing) {
+            console.log("@@@ Edit triggered");
+            handleEdit();
+        } else {
+            console.log("@@@ Save triggered");
+            handleSave();
+        }
     };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -426,7 +468,11 @@ export default function GameCard({
                             <Button
                                 variant="outline"
                                 className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
-                                onClick={() => setEditing(true)}
+                                onClick={() => {
+                                    setEditing(true)
+                                    setIsEditing(true)
+                                    console.log("@@@ CLicked")
+                                }}
                                 disabled={editing}
                             >
                                 Edit
@@ -436,7 +482,7 @@ export default function GameCard({
                             variant="outline"
                             className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                             disabled={admin ? false : selectedOption === null}
-                            onClick={admin ? handleSave : handleNextClick}
+                            onClick={admin ? handleSaveOrEditing : handleNextClick}
                         >
                             {admin
                                 ? "Save"
