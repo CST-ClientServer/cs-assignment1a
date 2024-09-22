@@ -79,7 +79,9 @@ export default function GameCard({
     const [editedCategory, setEditedCategory] = useState(category || "");
     const [editedAnswer, setEditedAnswer] = useState(answer || "");
     const [mediaUrl, setMediaUrl] = useState<string>(fileUploadUrl + media);
-    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [uploadFile, setUploadFile] = useState<File | null>(
+        (typeof media === "string" && media) ? new File([], media) : null
+    );
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
 
@@ -146,6 +148,8 @@ export default function GameCard({
             media: mediaUrl,
         };
 
+        console.log(payload)
+
         axios({
             method: "post",
             url: "/card/update?id=" + id,
@@ -159,6 +163,8 @@ export default function GameCard({
                 console.error("There was an error!", error);
             })
             .finally(() => {
+                setEditing(false);
+                setIsEditing(false);
                 onClose?.();
             })
 
