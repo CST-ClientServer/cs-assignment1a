@@ -499,8 +499,13 @@ export default function GameCard({
                         {admin && (
                             <div className="flex items-center gap-x-2">
                                 <Button
+                                    className=" bg-red-700 text-white hover:bg-red-800 hover:text-white"
                                     variant="outline"
                                     onClick={() => {
+                                        const confirmed = window.confirm("Do you want to delete this card?");
+                                        if (!confirmed) {
+                                            return;
+                                        }
                                         axios({
                                             method: "get",
                                             url: "/card/delete?id=" + id,
