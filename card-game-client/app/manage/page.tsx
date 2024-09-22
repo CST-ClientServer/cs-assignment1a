@@ -9,8 +9,10 @@ import AdminCard from "../components/ui/admin-card";
 import Modal from "react-modal";
 import GameCard from "../components/ui/game-card";
 import { ThreeDots } from "react-loader-spinner";
+import { useCardsContext } from "../context/CardsContent";
 
 export default function Manage() {
+    const { categoryCards } = useCardsContext();
     const [selectedCategory, setSelectedCategory] = useState<string>("All");
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -65,18 +67,11 @@ export default function Manage() {
                                 label: "All",
                                 onClick: () => handleCategoryChange("All"),
                             },
-                            {
-                                label: "Movies",
-                                onClick: () => handleCategoryChange("Movies"),
-                            },
-                            {
-                                label: "Politics",
-                                onClick: () => handleCategoryChange("Politics"),
-                            },
-                            {
-                                label: "Products",
-                                onClick: () => handleCategoryChange("Products"),
-                            },
+                            ...categoryCards.map((cat) => ({
+                                label: cat.category,
+                                onClick: () =>
+                                    handleCategoryChange(cat.category),
+                            })),
                         ]}
                         className="w-60 border-thin"
                     >
