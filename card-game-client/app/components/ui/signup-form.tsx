@@ -3,48 +3,60 @@ import React, {FormEvent} from "react";
 import Card from "./card";
 import { Button } from "./button";
 import axios from "axios";
-import {useSetAtom} from "jotai";
-import {initialGamer} from "@/app/atom/atom";
 import {useRouter} from "next/navigation";
 
 
+
 export default function SignupForm() {
-  const setGamer = useSetAtom(initialGamer);
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  const checkAdmin = (event : React.ChangeEvent<HTMLInputElement>) => {
+
+    if(event.target.checked) {
+      const code = prompt("Enter the admin code");
+        if(code === "Comp3940") {
+            alert("You are now an admin");
+            setIsAdmin(true)
+        } else {
+            alert("Wrong code");
+            event.target.checked = false
+
+        }
+    } else {
+      setIsAdmin(false)
+    }
+  }
 
   const handleSignup = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const username = document.getElementById("username") as HTMLInputElement;
+    const firstName = document.getElementById("firstname") as HTMLInputElement;
+    const lastName = document.getElementById("lastname") as HTMLInputElement;
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
 
-    if (!username || !email || !password) {
-      window.alert("username, email and password can not be empty!");
+    if (!firstName || !lastName || !email || !password) {
+      window.alert("firstName, lastName, email and password can not be empty!");
       return;
     }
 
     const userData = {
-      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
       email: email.value,
       password: password.value,
+      role: isAdmin ? "ADMIN" : "PLAYER"
     };
 
     axios({
       method: "post",
-      url: "/signup",
+      url: "/gamer/insert",
       data: userData,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    }).then((response) => {
-      localStorage.setItem("token", response.data.token);
-      setGamer({
-        id: response.data.id,
-        email: response.data.email,
-        role: response.data.role,
-        firstName: response.data.firstName,
-        lastName: response.data.lastName
-      })
-      router.push("/dashboard");
+    }).then(() => {
+      alert("signup success");
+        router.push("/login");
     }).catch((error) => {
       console.log(error);
       alert("fail to signup");
@@ -55,11 +67,35 @@ export default function SignupForm() {
         <form className="flex flex-col gap-4 h-full pt-2 w-full" onSubmit={handleSignup}>
           <div className="flex-grow flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <p>Username</p>
+              <p>Are you certified Admin?</p>
               <input
-                  id="username"
+                  id="checkAdmin"
+                  type="checkbox"
+                  placeholder="First Name"
+                  onChange={(e) => {
+                    checkAdmin(e)
+                  }}
+                  defaultChecked={false}
+                  className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
+
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <p>First Name</p>
+              <input
+                  id="firstname"
                   type="text"
-                  placeholder="Username"
+                  placeholder="First Name"
+                  className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
+
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <p>Last Name</p>
+              <input
+                  id="lastname"
+                  type="text"
+                  placeholder="Last Name"
                   className="input border rounded-md w-full h-8 p-2 dark:bg-slate-200 dark:text-black"
 
               />
@@ -91,6 +127,14 @@ export default function SignupForm() {
               className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
           >
             Sign up
+          </Button>
+          <Button
+              variant="outline"
+              type="button"
+              onClick={() => router.push("/login")}
+              className="bg-gray-400 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
+          >
+            Back to sign in
           </Button>
         </form>
       </Card>

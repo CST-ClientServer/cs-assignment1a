@@ -95,6 +95,14 @@ export default function LoginForm() {
         >
           Sign in
         </Button>
+          <Button
+              variant="outline"
+              type="button"
+              onClick={() => router.push("/signup")}
+              className="bg-gray-400 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
+          >
+              Sign Up
+          </Button>
       </form>
     </Card>
   );
