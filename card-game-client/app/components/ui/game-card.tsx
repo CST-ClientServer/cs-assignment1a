@@ -177,9 +177,6 @@ export default function GameCard({
         return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
     };
 
-    console.log(fileUploadUrl + (currentItem?.media || String(media)), "media");
-    console.log(currentItem), "currentItem";
-
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
             <div className="flex justify-between items-center mb-4 w-full">
@@ -407,7 +404,10 @@ export default function GameCard({
                                       <Button
                                           variant={
                                               selectedOption === index
-                                                  ? answer === option
+                                                  ? answer
+                                                        ?.split(",")
+                                                        .map((a) => a.trim())
+                                                        .includes(option)
                                                       ? "selected"
                                                       : "quiz"
                                                   : "outline"
