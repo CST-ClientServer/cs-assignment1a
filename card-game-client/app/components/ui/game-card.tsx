@@ -64,6 +64,7 @@ export default function GameCard({
     const [editedOptions, setEditedOptions] = useState(
         options || ["", "", "", ""]
     );
+    const [id, setId] = useState<number | null>(null);
     const [editedTitle, setEditedTitle] = useState(title || "");
     const [editedQuestion, setEditedQuestion] = useState(question || "");
     const [editedCategory, setEditedCategory] = useState(category || "");
@@ -119,6 +120,7 @@ export default function GameCard({
     const handleNextClick = () => {
         if (currentItemIndex < (subCategoryItems?.length ?? 0) - 1) {
             setCurrentItemIndex(currentItemIndex + 1);
+            updateId();
             setSelectedOption(null);
             setTimeLeft(timeLimit);
         } else {
@@ -126,21 +128,35 @@ export default function GameCard({
         }
     };
 
-    const handleEdit = () => {
-        setEditing(true);
+    const updateId = () => {
+        if (currentItem) {
+            setId(currentItem.id);
+        } else {
+            setId(null);
+        }
+    };
+
+    const handleEdit = (cardId: number | undefined) => {
+        if (cardId !== undefined) {
+            setId(cardId);
+            setEditing(true);
+        } else {
+            setId(null);
+        }
     };
 
     const handleCancelEdit = () => {
-        setEditing(false);
         setEditedTitle(title || "");
         setEditedQuestion(question || "");
         setEditedCategory(category || "");
         setEditedAnswer(answer || "");
         setEditedOptions(options || ["", "", "", ""]);
+        setEditing(false);
     };
 
     const handleSave = () => {
         const payload = {
+            id: id,
             subCategory: editedTitle,
             category: editedCategory,
             question: editedQuestion,
@@ -150,8 +166,8 @@ export default function GameCard({
         };
 
         axios({
-            method: editing ? "put" : "post",
-            url: editing ? "/card/update" : "/card/insert",
+            method: "post",
+            url: editing ? "/api/card/update?id={id}" : "/card/insert",
             data: payload,
             headers: {"Content-Type": "multipart/form-data"},
         })
@@ -248,7 +264,7 @@ export default function GameCard({
             {currentItem || admin ? (
                 <div className={cn("flex", "flex-col", "items-center", className)}>
                     <h2 className="text-lg font-bold mb-4 text-center">
-                        {editing ? (
+                        {editing && id ? (
                             <div>
                                 <input
                                     type="text"
@@ -363,7 +379,7 @@ export default function GameCard({
                                 className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                                 onClick={() => {
                                     if (!editing) {
-                                        handleEdit();
+                                        handleEdit(currentItem?.id);
                                     } else {
                                         handleCancelEdit();
                                     }
