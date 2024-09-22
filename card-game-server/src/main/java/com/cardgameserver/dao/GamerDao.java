@@ -2,6 +2,7 @@ package com.cardgameserver.dao;
 
 import com.cardgameserver.model.Gamer;
 import com.cardgameserver.util.ConnectionManager;
+import com.cardgameserver.util.EncryptPassword;
 import com.cardgameserver.util.JwtHandler;
 
 import java.sql.*;
@@ -19,9 +20,16 @@ public class GamerDao {
             statement.setString(2, gamer.getLastName());
             statement.setString(3, gamer.getEmail());
             statement.setString(4, gamer.getRole().name());
-            statement.setString(5, gamer.getPassword());
+
+            // Before inserting the password, we need to hash it.
+            EncryptPassword encryptPassword = new EncryptPassword();
+            String encryptedPW = encryptPassword.encrypt(gamer.getPassword());
+
+            statement.setString(5,encryptedPW);
 
             return statement.executeUpdate() > 0;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -81,7 +89,11 @@ public class GamerDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, email);
-            statement.setString(2, password);
+
+            EncryptPassword encryptPassword = new EncryptPassword();
+            String decryptedPW = encryptPassword.encrypt(password);
+
+            statement.setString(2, decryptedPW);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -96,6 +108,8 @@ public class GamerDao {
                     gamer = new Gamer(id, firstName, lastName, email, role, token);
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return gamer;

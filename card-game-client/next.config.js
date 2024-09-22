@@ -15,7 +15,7 @@ module.exports = {
             {
                 source: "/:path*",
                 destination:
-                    "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/api/:path*",
+                    "https://jasper-server-meh.shop/api/:path*",
             },
         ];
     },

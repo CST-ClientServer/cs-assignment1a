@@ -173,7 +173,7 @@ export default function Dashboard() {
                                             imageError[card.subCategory] ||
                                             !card.questions[0].file?.savedName
                                                 ? defaultImageUrl
-                                                : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${card.questions[0].file.savedName}`
+                                                : `https://jasper-server-meh.shop/uploadFiles/${card.questions[0].file.savedName}`
                                         }
                                         alt={`${card.subCategory} image`}
                                         className="object-cover flex flex-wrap"
