@@ -170,6 +170,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
             >
                 {selectedCard && (
                     <GameCard
+                        id={selectedCard.id}
                         title={selectedCard.subCategory}
                         question={selectedCard.question}
                         answer={selectedCard.answer}
