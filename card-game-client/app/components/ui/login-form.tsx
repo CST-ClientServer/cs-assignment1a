@@ -33,6 +33,11 @@ export default function LoginForm() {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
 
+      if (!email || !password) {
+          window.alert("email and password can not be empty!");
+          return;
+      }
+
     const payload = {
         email: email.value,
         password: password.value,
@@ -90,6 +95,14 @@ export default function LoginForm() {
         >
           Sign in
         </Button>
+          <Button
+              variant="outline"
+              type="button"
+              onClick={() => router.push("/signup")}
+              className="bg-gray-400 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
+          >
+              Sign Up
+          </Button>
       </form>
     </Card>
   );
