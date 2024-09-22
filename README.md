@@ -5,37 +5,19 @@
 ## - How to run the client
 
 
-## - How to run the web-server - Section - 1
+## - How to run the web-server in your local
 
-### - What you need to run the web-server Section 
-1. Tomcat v10.1.29
-2. MySQL
-3. Few jar files
-  - jackson-annotations-2.17.0.jar
-  - jackson-core-2.17.0.jar
-  - jackson-databind-2.17.0.jar
-  - mysql-connector-j-9.0.0.jar
+1. pull latest docker image
+``` docker pull devjasper0906/card-game-tomcat:1.1.2```
 
-If you don't want to install Tomcat, MySQL, jar file you might need a docker.(Go to section 2)
+2. check image id
+``` docker images```
 
-#### Step 1
+3. Run as tomcat
+``` docker run -d -i -t --name tomcat -p 8081:8080 [image id]```
 
-#### Step 2
+4. Make sure the container up
+``` docker ps ```
 
-#### Step 3
-
-#### Step 4
-
-## - How to run the web-server - Section - 2 (Using Docker)
-
-### - What you need to run the web-server Section 
-1. Docker Desktop
-
-#### Step 1
-
-#### Step 2
-
-#### Step 3
-
-#### Step 4
-
+5. Should Accessible to
+``` http://localhost:8081 ```
