@@ -414,6 +414,7 @@ export default function GameCard({
                                         width: `${
                                             (timeLeft / timeLimit) * 100
                                         }%`,
+                                        transition: "width 0.5s ease-in-out",
                                     }}
                                 ></div>
                             </div>
