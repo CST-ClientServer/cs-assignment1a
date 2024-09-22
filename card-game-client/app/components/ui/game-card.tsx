@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Card from "./card";
-import { cn, defaultImageUrl } from "@/app/lib/utils";
+import {
+    cn,
+    defaultImageUrl,
+    fileUploadUrl,
+    videoFileExtensions,
+    audioFileExtensions,
+} from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
@@ -16,7 +22,7 @@ interface GameCardProps {
     question?: string;
     answer?: string;
     options?: string[];
-    image?: React.ReactNode;
+    media?: React.ReactNode;
     className?: string;
     onClose?: () => void;
     subCategoryItems?: {
@@ -26,6 +32,7 @@ interface GameCardProps {
         question: string;
         options: string[];
         answer?: string;
+        media?: string;
     }[];
     admin?: boolean;
     createCard?: boolean;
@@ -51,7 +58,7 @@ export default function GameCard({
     onClose,
     subCategoryItems,
     admin,
-    image,
+    media,
     createCard,
 }: GameCardProps) {
     const timeLimit = 5;
@@ -68,10 +75,7 @@ export default function GameCard({
     const [editedQuestion, setEditedQuestion] = useState(question || "");
     const [editedCategory, setEditedCategory] = useState(category || "");
     const [editedAnswer, setEditedAnswer] = useState(answer || "");
-    const [imageUrl, setImageUrl] = useState<string>(
-        "http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/" +
-            image,
-    );
+    const [mediaUrl, setMediaUrl] = useState<string>(fileUploadUrl + media);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
@@ -135,6 +139,7 @@ export default function GameCard({
             answer: editedAnswer,
             answerOption: editedOptions.toString(),
             file: uploadFile,
+            media: mediaUrl,
         };
 
         axios({
@@ -159,7 +164,7 @@ export default function GameCard({
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImageUrl(reader.result as string);
+                setMediaUrl(reader.result as string);
                 setUploadFile(file);
             };
             reader.readAsDataURL(file);
@@ -167,6 +172,10 @@ export default function GameCard({
     };
 
     const currentItem = subCategoryItems?.[currentItemIndex];
+
+    const getFileExtension = (url: string) => {
+        return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+    };
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -277,19 +286,42 @@ export default function GameCard({
                             `${currentItem?.title}`
                         )}
                     </h2>
-                    <Image
-                        src={imageUrl}
-                        width={200}
-                        height={200}
-                        alt={"Quiz card image"}
-                        className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
-                        onError={() => setImageUrl(defaultImageUrl)}
-                    />
+                    {videoFileExtensions.includes(
+                        getFileExtension(currentItem?.media || ""),
+                    ) ? (
+                        <video
+                            src={fileUploadUrl + currentItem?.media}
+                            controls={true}
+                            autoPlay={true}
+                            width={200}
+                            height={200}
+                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    ) : audioFileExtensions.includes(
+                          getFileExtension(currentItem?.media || ""),
+                      ) ? (
+                        <audio
+                            src={fileUploadUrl + currentItem?.media}
+                            autoPlay={true}
+                            controls={true}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    ) : (
+                        <Image
+                            src={fileUploadUrl + currentItem?.media}
+                            width={200}
+                            height={200}
+                            alt={"Quiz card image"}
+                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            onError={() => setMediaUrl(defaultImageUrl)}
+                        />
+                    )}
                     {admin && (
                         <div>
                             <input
                                 type="file"
-                                accept="image/*, video/*"
+                                accept="image/*, video/*, audio/*"
                                 onChange={handleImageUpload}
                                 style={{ display: "none" }}
                                 id="imageUploadInput"
