@@ -10,91 +10,34 @@ import {
 import Modal from "react-modal";
 import GameCard from "./game-card";
 import Image from "next/image";
-import axios from "axios";
-import { useAtom } from "jotai";
-import { initialQuizCardList } from "@/app/atom/atom";
-import { defaultImageUrl, videoFileExtensions, fileUploadUrl } from "@/app/lib/utils";
+import {
+    defaultImageUrl,
+    videoFileExtensions,
+    fileUploadUrl,
+} from "@/app/lib/utils";
 import { ThreeDots } from "react-loader-spinner";
-
-export interface Category {
-    id: number;
-    category: string;
-}
-
-export interface FileObject {
-    originalName: string;
-    savedPath: string;
-    savedName: string;
-    size: string;
-    extension: string;
-}
-
-export interface QuizCardFromDB {
-    id: number;
-    question: string;
-    answerOption: string | string[];
-    answer: string;
-    file?: string;
-    category: string;
-    subCategory: string;
-}
-
-export interface QuizCard {
-    id: number;
-    question: string;
-    answerOption: string[];
-    answer: string;
-    file?: FileObject;
-    category: Category;
-    subCategory: string;
-}
+import { useCardsContext } from "@/app/context/CardsContent";
+import { QuizCard } from "@/app/lib/types";
 
 interface AdminCardProps {
     categoryName: string;
 }
 
 export default function AdminCard(categoryName: AdminCardProps) {
-    const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
+    const { quizCardList, isLoading } = useCardsContext();
+
     const [filteredCardData, setFilteredCardData] =
         useState<QuizCard[]>(quizCardList);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [selectedCard, setSelectedCard] = useState<QuizCard | undefined>(
         undefined,
     );
-    const [addedCardList] = useAtom(initialQuizCardList);
-    const [isLoading, setIsLoading] = useState(true);
-
     const [imageError, setImageError] = useState<{ [key: number]: boolean }>(
         {},
     );
     const handleImageError = (id: number) => {
         setImageError((prev) => ({ ...prev, [id]: true }));
     };
-
-    useEffect(() => {
-        console.log("Triggered");
-        setIsLoading(true);
-        axios
-            .get("/card/getAll")
-            .then((response) => {
-                response.data.forEach((element: QuizCardFromDB) => {
-                    element.category = JSON.parse(element.category);
-                    if (element.file != null) {
-                        element.file = JSON.parse(element.file);
-                    }
-                    if (typeof element.answerOption === "string") {
-                        element.answerOption = element.answerOption.split(",");
-                    }
-                });
-                setQuizCardList(response.data);
-            })
-            .catch((error) => {
-                console.error("There was an error!", error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, [addedCardList]);
 
     useEffect(() => {
         if (categoryName.categoryName === "All") {
@@ -168,9 +111,14 @@ export default function AdminCard(categoryName: AdminCardProps) {
                                 </TableCell>
                                 <TableCell>
                                     {filteredCardData.file?.extension &&
-                                     videoFileExtensions.includes(filteredCardData.file.extension) ? (
+                                    videoFileExtensions.includes(
+                                        filteredCardData.file.extension,
+                                    ) ? (
                                         <video
-                                            src={fileUploadUrl + filteredCardData.file.savedName}
+                                            src={
+                                                fileUploadUrl +
+                                                filteredCardData.file.savedName
+                                            }
                                             controls={false}
                                             width={50}
                                             height={50}
@@ -180,9 +128,14 @@ export default function AdminCard(categoryName: AdminCardProps) {
                                             src={
                                                 imageError[filteredCardData.id]
                                                     ? defaultImageUrl
-                                                    : fileUploadUrl + (filteredCardData.file?.savedName || "")
+                                                    : fileUploadUrl +
+                                                      (filteredCardData.file
+                                                          ?.savedName || "")
                                             }
-                                            alt={filteredCardData.subCategory || ""}
+                                            alt={
+                                                filteredCardData.subCategory ||
+                                                ""
+                                            }
                                             width={50}
                                             height={50}
                                             onError={() =>
@@ -221,7 +174,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
                         question={selectedCard.question}
                         answer={selectedCard.answer}
                         category={selectedCard.category.category}
-                        options={selectedCard.answerOption}
+                        options={selectedCard.answerOptions}
                         onClose={handleCloseModal}
                         media={selectedCard.file?.savedName}
                         quizCardList={quizCardList}

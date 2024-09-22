@@ -13,8 +13,8 @@ import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { QuizCard } from "@/app/components/ui/admin-card";
 import { initialQuizCardList } from "@/app/atom/atom";
+import { QuizCard } from "@/app/lib/types";
 
 interface GameCardProps {
     title?: string;
@@ -287,10 +287,16 @@ export default function GameCard({
                         )}
                     </h2>
                     {videoFileExtensions.includes(
-                        getFileExtension(currentItem?.media || ""),
+                        getFileExtension(
+                            fileUploadUrl +
+                                (currentItem?.media || String(media)),
+                        ),
                     ) ? (
                         <video
-                            src={fileUploadUrl + currentItem?.media}
+                            src={
+                                fileUploadUrl +
+                                (currentItem?.media || String(media))
+                            }
                             controls={true}
                             autoPlay={true}
                             width={200}
@@ -299,17 +305,26 @@ export default function GameCard({
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     ) : audioFileExtensions.includes(
-                          getFileExtension(currentItem?.media || ""),
+                          getFileExtension(
+                              fileUploadUrl +
+                                  (currentItem?.media || String(media)),
+                          ),
                       ) ? (
                         <audio
-                            src={fileUploadUrl + currentItem?.media}
+                            src={
+                                fileUploadUrl +
+                                (currentItem?.media || String(media))
+                            }
                             autoPlay={true}
                             controls={true}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     ) : (
                         <Image
-                            src={fileUploadUrl + currentItem?.media}
+                            src={
+                                fileUploadUrl +
+                                (currentItem?.media || String(media))
+                            }
                             width={200}
                             height={200}
                             alt={"Quiz card image"}
@@ -389,7 +404,10 @@ export default function GameCard({
                                       <Button
                                           variant={
                                               selectedOption === index
-                                                  ? answer === option
+                                                  ? answer
+                                                        ?.split(",")
+                                                        .map((a) => a.trim())
+                                                        .includes(option)
                                                       ? "selected"
                                                       : "quiz"
                                                   : "outline"
