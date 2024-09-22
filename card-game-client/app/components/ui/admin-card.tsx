@@ -125,6 +125,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
                         <TableHead>Category</TableHead>
                         <TableHead>Subcategory</TableHead>
                         <TableHead>Question</TableHead>
+
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -217,6 +218,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
             >
                 {selectedCard && (
                     <GameCard
+                        cardID={selectedCard.id}
                         title={selectedCard.subCategory}
                         question={selectedCard.question}
                         answer={selectedCard.answer}

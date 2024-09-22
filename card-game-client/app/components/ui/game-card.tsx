@@ -17,6 +17,7 @@ import { QuizCard } from "@/app/components/ui/admin-card";
 import { initialQuizCardList } from "@/app/atom/atom";
 
 interface GameCardProps {
+    cardID?: number;
     title?: string;
     category?: string;
     question?: string;
@@ -49,6 +50,7 @@ const categoryOptions = [
 ];
 
 export default function GameCard({
+    cardID,
     title,
     className,
     category,
@@ -158,6 +160,31 @@ export default function GameCard({
                 onClose?.();
             });
     };
+
+    const handleDelete = () =>{
+        // console.log(`hit delete button: ${cardID}`)
+
+        if (!cardID) {
+            console.error("Card ID is missing.");
+            return;
+        }
+        axios({
+            method: "delete",
+            url: `/card/delete`,
+            data: { id: cardID },
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+            .then(() => {
+                console.log(`Card with ID ${cardID} deleted successfully`);
+
+            })
+            .catch((error) => {
+                console.error("There was an error!", error);
+            })
+            .finally(() => {
+                onClose?.();
+            });
+    }
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -445,6 +472,15 @@ export default function GameCard({
                                 ? "Next"
                                 : "Finish"}
                         </Button>
+                        {admin && editing && (
+                            <Button
+                                variant="outline"
+                                className="bg-red-700 hover:bg-red-900 text-white hover:text-white border"
+                                onClick={() => handleDelete()}
+                            >
+                                Delete
+                            </Button>
+                        )}
                     </div>
                 </div>
             ) : (

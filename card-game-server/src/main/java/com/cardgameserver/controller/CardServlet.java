@@ -6,6 +6,7 @@ import com.cardgameserver.util.FileUtil;
 import com.cardgameserver.util.JwtHandler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -19,10 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Base64;
@@ -181,7 +179,19 @@ public class CardServlet extends HttpServlet {
     }
 
     private void deleteCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        int id = Integer.parseInt(request.getParameter("id"));
+//        int id = Integer.parseInt(request.getParameter("id"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try (BufferedReader reader = request.getReader()) {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+        String json = sb.toString();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Integer> requestBody = mapper.readValue(json, new TypeReference<Map<String, Integer>>() {});
+
+        int id = requestBody.get("id");
         cardDao.deleteCard(id);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
