@@ -82,7 +82,7 @@ export default function GameCard({
     const [editedAnswer, setEditedAnswer] = useState(answer || "");
     const [mediaUrl, setMediaUrl] = useState<string>(fileUploadUrl + media);
     const [uploadFile, setUploadFile] = useState<File | null>(
-        (typeof media === "string" && media) ? new File([], media) : null
+        typeof media === "string" && media ? new File([], media) : null,
     );
 
     const [addedCardList, setAddedCardList] = useAtom(initialQuizCardList);
@@ -150,7 +150,7 @@ export default function GameCard({
             media: mediaUrl,
         };
 
-        console.log(payload)
+        console.log(payload);
 
         axios({
             method: "post",
@@ -499,7 +499,9 @@ export default function GameCard({
                             "pb-4",
                             "gap-x-2",
                             checked ? "pt-4" : "pt-8",
-                            "flex justify-between items-center w-full",
+                            admin
+                                ? "flex justify-between items-center w-full"
+                                : "",
                         ])}
                     >
                         {admin && (
@@ -508,7 +510,9 @@ export default function GameCard({
                                     className=" bg-red-700 text-white hover:bg-red-800 hover:text-white"
                                     variant="outline"
                                     onClick={() => {
-                                        const confirmed = window.confirm("Do you want to delete this card?");
+                                        const confirmed = window.confirm(
+                                            "Do you want to delete this card?",
+                                        );
                                         if (!confirmed) {
                                             return;
                                         }
