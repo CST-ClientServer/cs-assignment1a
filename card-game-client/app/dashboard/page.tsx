@@ -7,6 +7,7 @@ import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
 import Image from "next/image";
 import {
+    cn,
     defaultImageUrl,
     fileUploadUrl,
     videoFileExtensions,
@@ -176,9 +177,21 @@ export default function Dashboard() {
                                                 : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${card.questions[0].file.savedName}`
                                         }
                                         alt={`${card.subCategory} image`}
-                                        className="object-cover flex flex-wrap"
-                                        width={230}
-                                        height={230}
+                                        className={cn([
+                                            "object-cover flex flex-wrap",
+                                            "rounded-md",
+                                            "mb-6",
+                                        ])}
+                                        width={
+                                            imageError[card.subCategory]
+                                                ? 180
+                                                : 260
+                                        }
+                                        height={
+                                            imageError[card.subCategory]
+                                                ? 180
+                                                : 260
+                                        }
                                         onError={() =>
                                             handleImageError(card.subCategory)
                                         }

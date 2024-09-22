@@ -14,6 +14,7 @@ import {
     defaultImageUrl,
     videoFileExtensions,
     fileUploadUrl,
+    cn,
 } from "@/app/lib/utils";
 import { ThreeDots } from "react-loader-spinner";
 import { useCardsContext } from "@/app/context/CardsContent";
@@ -143,6 +144,7 @@ export default function AdminCard(categoryName: AdminCardProps) {
                                                     filteredCardData.id,
                                                 )
                                             }
+                                            className={cn(["rounded-md"])}
                                         />
                                     )}
                                 </TableCell>

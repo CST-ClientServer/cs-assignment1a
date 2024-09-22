@@ -383,7 +383,13 @@ export default function GameCard({
                             width={200}
                             height={200}
                             alt={"Quiz card image"}
-                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
+                            className={cn([
+                                "rounded-md",
+                                mediaUrl === defaultImageUrl
+                                    ? "md:w-2/5"
+                                    : "md:w-4/5",
+                                "mb-6",
+                            ])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     )}
@@ -455,7 +461,7 @@ export default function GameCard({
                                   </div>
                               ))
                             : currentItem?.options.map((option, index) => (
-                                  <div key={index}>
+                                  <div key={index} className="w-full">
                                       <Button
                                           variant={
                                               selectedOption === index
@@ -467,7 +473,7 @@ export default function GameCard({
                                                       : "quiz"
                                                   : "outline"
                                           }
-                                          className="md:w-48 md:h-16"
+                                          className="w-full md:w-48 md:h-16 h-12 text-center whitespace-normal"
                                           onClick={() =>
                                               handleOptionClick(index)
                                           }
