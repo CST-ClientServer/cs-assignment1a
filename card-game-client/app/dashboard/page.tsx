@@ -6,7 +6,11 @@ import Header from "../components/header/header";
 import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
 import Image from "next/image";
-import {defaultImageUrl, fileUploadUrl, videoFileExtensions} from "@/app/lib/utils";
+import {
+    defaultImageUrl,
+    fileUploadUrl,
+    videoFileExtensions,
+} from "@/app/lib/utils";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
@@ -19,6 +23,15 @@ interface Question {
     subCategory: string;
     answer: string;
     answerOptions: string[];
+    file?: File;
+}
+
+interface File {
+    originalName: string;
+    savedPath: string;
+    savedName: string;
+    size: string;
+    extension: string;
 }
 
 // Define the Category type
@@ -33,21 +46,20 @@ interface SubCategory {
     subCategory: string;
     questions: Question[];
 }
-
 export default function Dashboard() {
-    const { categoryCards, groupedQuizCards, isLoading } = useCardsContext();
+    const { categoryCards, groupedQuizCards } = useCardsContext();
     const [selectedCategory, setSelectedCategory] = useState<number | "All">(
         "All",
     );
     const [selectedSubCategory, setSelectedSubCategory] =
         useState<SubCategory | null>(null);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-
-    const [imageError, setImageError] = useState<{ [key: number]: boolean }>(
+    const [imageError, setImageError] = useState<{ [key: string]: boolean }>(
         {},
     );
-    const handleImageError = (id: number) => {
-        setImageError((prev) => ({ ...prev, [id]: true }));
+
+    const handleImageError = (subCategory: string) => {
+        setImageError((prev) => ({ ...prev, [subCategory]: true }));
     };
 
     useLayoutEffect(() => {
@@ -73,14 +85,12 @@ export default function Dashboard() {
         setModalIsOpen(true);
     };
 
-    console.log(selectedSubCategory);
-
     const handleCloseModal = () => {
         setModalIsOpen(false);
         setSelectedSubCategory(null);
     };
 
-    if (isLoading) {
+    if (filteredGroupedCards.length === 0) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <ThreeDots
@@ -145,9 +155,14 @@ export default function Dashboard() {
                             </h1>
                             <div className="flex justify-center items-center w-full h-40">
                                 {card.questions[0].file?.extension &&
-                                videoFileExtensions.includes(card.questions[0].file.extension) ? (
+                                videoFileExtensions.includes(
+                                    card.questions[0].file.extension,
+                                ) ? (
                                     <video
-                                        src={fileUploadUrl + card.questions[0].file.savedName}
+                                        src={
+                                            fileUploadUrl +
+                                            card.questions[0].file.savedName
+                                        }
                                         controls={false}
                                         width={230}
                                         height={230}
@@ -155,18 +170,17 @@ export default function Dashboard() {
                                 ) : (
                                     <Image
                                         src={
-                                            imageError[card.category.id]
+                                            imageError[card.subCategory] ||
+                                            !card.questions[0].file?.savedName
                                                 ? defaultImageUrl
-                                                : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${
-                                                    card.questions[0].file?.savedName || ""
-                                                }`
+                                                : `http://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/uploadFiles/${card.questions[0].file.savedName}`
                                         }
                                         alt={`${card.subCategory} image`}
                                         className="object-cover flex flex-wrap"
                                         width={230}
                                         height={230}
                                         onError={() =>
-                                            handleImageError(card.category.id)
+                                            handleImageError(card.subCategory)
                                         }
                                     />
                                 )}
@@ -201,6 +215,9 @@ export default function Dashboard() {
                         )}
                         answer={selectedSubCategory.questions
                             .map((q) => q.answer)
+                            .join(", ")}
+                        media={selectedSubCategory.questions
+                            .map((q) => q.file?.savedName || "")
                             .join(", ")}
                     />
                 )}

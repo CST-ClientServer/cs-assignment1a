@@ -87,11 +87,13 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
         const fetchData = async () => {
             if (!hasFetched.current) {
                 setIsLoading(true);
-                fetchQuizCards();
-                fetchCategories();
+                try {
+                    await Promise.all([fetchQuizCards(), fetchCategories()]);
+                } finally {
+                    setIsLoading(false);
+                    hasFetched.current = true;
+                }
                 console.log("Fetching data...");
-                setIsLoading(false);
-                hasFetched.current = true;
             }
         };
 

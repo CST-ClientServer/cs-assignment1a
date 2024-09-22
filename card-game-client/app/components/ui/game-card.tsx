@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Card from "./card";
-import { cn, defaultImageUrl, fileUploadUrl, videoFileExtensions, audioFileExtensions } from "@/app/lib/utils";
+import {
+    cn,
+    defaultImageUrl,
+    fileUploadUrl,
+    videoFileExtensions,
+    audioFileExtensions,
+} from "@/app/lib/utils";
 import { Button } from "./button";
 import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Switch from "react-switch";
@@ -165,7 +171,9 @@ export default function GameCard({
 
     const currentItem = subCategoryItems?.[currentItemIndex];
 
-    const getFileExtension = (url: string) => { return url.substring(url.lastIndexOf(".") + 1).toLowerCase(); }
+    const getFileExtension = (url: string) => {
+        return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+    };
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -276,7 +284,9 @@ export default function GameCard({
                             `${currentItem?.title}`
                         )}
                     </h2>
-                    { videoFileExtensions.includes(getFileExtension((mediaUrl))) ? (
+                    {videoFileExtensions.includes(
+                        getFileExtension(mediaUrl),
+                    ) ? (
                         <video
                             src={mediaUrl}
                             controls={true}
@@ -286,7 +296,9 @@ export default function GameCard({
                             className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
-                    ) : audioFileExtensions.includes(getFileExtension(mediaUrl)) ? (
+                    ) : audioFileExtensions.includes(
+                          getFileExtension(mediaUrl),
+                      ) ? (
                         <audio
                             src={mediaUrl}
                             autoPlay={true}
