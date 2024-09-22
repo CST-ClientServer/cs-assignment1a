@@ -211,6 +211,7 @@ export default function Dashboard() {
                                 title: q.question,
                                 question: q.question,
                                 options: q.answerOptions,
+                                media: q.file?.savedName,
                             }),
                         )}
                         answer={selectedSubCategory.questions

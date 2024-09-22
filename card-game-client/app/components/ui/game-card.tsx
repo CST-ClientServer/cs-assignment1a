@@ -32,6 +32,7 @@ interface GameCardProps {
         question: string;
         options: string[];
         answer?: string;
+        media?: string;
     }[];
     admin?: boolean;
     createCard?: boolean;
@@ -138,6 +139,7 @@ export default function GameCard({
             answer: editedAnswer,
             answerOption: editedOptions.toString(),
             file: uploadFile,
+            media: mediaUrl,
         };
 
         axios({
@@ -170,6 +172,8 @@ export default function GameCard({
     };
 
     const currentItem = subCategoryItems?.[currentItemIndex];
+
+    console.log("me", fileUploadUrl + currentItem?.media);
 
     const getFileExtension = (url: string) => {
         return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
@@ -285,10 +289,10 @@ export default function GameCard({
                         )}
                     </h2>
                     {videoFileExtensions.includes(
-                        getFileExtension(mediaUrl),
+                        getFileExtension(currentItem?.media || ""),
                     ) ? (
                         <video
-                            src={mediaUrl}
+                            src={fileUploadUrl + currentItem?.media}
                             controls={true}
                             autoPlay={true}
                             width={200}
@@ -297,17 +301,17 @@ export default function GameCard({
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     ) : audioFileExtensions.includes(
-                          getFileExtension(mediaUrl),
+                          getFileExtension(currentItem?.media || ""),
                       ) ? (
                         <audio
-                            src={mediaUrl}
+                            src={fileUploadUrl + currentItem?.media}
                             autoPlay={true}
                             controls={true}
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     ) : (
                         <Image
-                            src={mediaUrl}
+                            src={fileUploadUrl + currentItem?.media}
                             width={200}
                             height={200}
                             alt={"Quiz card image"}
