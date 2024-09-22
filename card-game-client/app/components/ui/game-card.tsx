@@ -173,8 +173,6 @@ export default function GameCard({
 
     const currentItem = subCategoryItems?.[currentItemIndex];
 
-    console.log("me", fileUploadUrl + currentItem?.media);
-
     const getFileExtension = (url: string) => {
         return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
     };
