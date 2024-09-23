@@ -3,7 +3,16 @@
 
 
 ## - How to run the client
+1. clone this project
+``` git clone git@github.com:CST-ClientServer/cs-assignment1a.git ```
 
+2. Enter to the card-game-client folder
+
+3. Run npm install
+``` npm i ```
+
+4. Running the project in dev
+```npm run dev```
 
 ## - How to run the web-server in your local
 
