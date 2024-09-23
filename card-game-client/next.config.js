@@ -15,7 +15,9 @@ module.exports = {
             {
                 source: "/:path*",
                 destination:
-                    "https://jasper-server-meh.shop/api/:path*",
+                    process.env.NEXT_PUBLIC_IS_DEV === "true"
+                        ? "http://localhost:8081/api/:path*"
+                        : "https://jasper-server-meh.shop/api/:path*",
             },
         ];
     },
