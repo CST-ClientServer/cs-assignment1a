@@ -385,9 +385,7 @@ export default function GameCard({
                             alt={"Quiz card image"}
                             className={cn([
                                 "rounded-md",
-                                mediaUrl === defaultImageUrl
-                                    ? "md:w-2/5"
-                                    : "md:w-4/5",
+                                mediaUrl === defaultImageUrl,
                                 "mb-6",
                             ])}
                             onError={() => setMediaUrl(defaultImageUrl)}
