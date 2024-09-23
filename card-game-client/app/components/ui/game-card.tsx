@@ -150,8 +150,6 @@ export default function GameCard({
             media: mediaUrl,
         };
 
-        console.log(payload);
-
         axios({
             method: "post",
             url: "/card/update?id=" + id,
@@ -227,8 +225,6 @@ export default function GameCard({
     const getFileExtension = (url: string) => {
         return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
     };
-
-    console.log("mediaUrl", mediaUrl);
 
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
@@ -391,7 +387,7 @@ export default function GameCard({
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     )}
-                    {admin && (
+                    {editing && (
                         <div>
                             <input
                                 type="file"
@@ -525,7 +521,6 @@ export default function GameCard({
                                             url: "/card/delete?id=" + id,
                                         })
                                             .then(() => {
-                                                console.log(id);
                                                 setAddedCardList(
                                                     addedCardList.filter(
                                                         (card) =>
@@ -541,7 +536,6 @@ export default function GameCard({
                                             })
                                             .finally(() => {
                                                 refetch();
-                                                console.log("Deleted");
                                                 onClose?.();
                                             });
                                     }}
@@ -557,34 +551,42 @@ export default function GameCard({
                                     variant="outline"
                                     className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                                     onClick={() => {
-                                        setEditing(true);
-                                        setIsEditing(true);
-                                        console.log("@@@ CLicked");
+                                        if (editing) {
+                                            // Handle save logic here
+                                            handleSaveOrEditing();
+                                        } else {
+                                            setEditing(true);
+                                            setIsEditing(true);
+                                            console.log("@@@ Clicked");
+                                        }
                                     }}
-                                    disabled={editing}
+                                    disabled={
+                                        editing
+                                            ? editedOptions.toString() ===
+                                                  options?.toString() &&
+                                              editedTitle === title &&
+                                              editedQuestion === question &&
+                                              editedCategory === category &&
+                                              editedAnswer === answer &&
+                                              mediaUrl === fileUploadUrl + media
+                                            : false
+                                    }
                                 >
-                                    Edit
+                                    {editing ? "Save" : "Edit"}
                                 </Button>
                             )}
-                            <Button
-                                variant="outline"
-                                className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
-                                disabled={
-                                    admin ? false : selectedOption === null
-                                }
-                                onClick={
-                                    admin
-                                        ? handleSaveOrEditing
-                                        : handleNextClick
-                                }
-                            >
-                                {admin
-                                    ? "Save"
-                                    : currentItemIndex <
-                                      (subCategoryItems?.length ?? 0) - 1
-                                    ? "Next"
-                                    : "Finish"}
-                            </Button>
+                            {!admin && (
+                                <Button
+                                    variant="outline"
+                                    className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
+                                    onClick={handleNextClick}
+                                >
+                                    {currentItemIndex <
+                                    (subCategoryItems?.length ?? 0) - 1
+                                        ? "Next"
+                                        : "Finish"}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
