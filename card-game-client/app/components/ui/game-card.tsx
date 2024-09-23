@@ -387,7 +387,7 @@ export default function GameCard({
                             onError={() => setMediaUrl(defaultImageUrl)}
                         />
                     )}
-                    {admin && (
+                    {editing && (
                         <div>
                             <input
                                 type="file"
