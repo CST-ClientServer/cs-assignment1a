@@ -174,7 +174,8 @@ export default function Dashboard() {
                                             imageError[card.subCategory] ||
                                             !card.questions[0].file?.savedName
                                                 ? defaultImageUrl
-                                                : `https://jasper-server-meh.shop/uploadFiles/${card.questions[0].file.savedName}`
+                                                : fileUploadUrl +
+                                                  `${card.questions[0].file.savedName}`
                                         }
                                         alt={`${card.subCategory} image`}
                                         className={cn([
