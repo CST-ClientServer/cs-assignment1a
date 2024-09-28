@@ -160,13 +160,24 @@ public class CardServlet extends HttpServlet {
         String category = request.getParameter("category");
         String subCategory = request.getParameter("subCategory");
 
-        ServletContext context = getServletContext();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        FileInfo file = FileUtil.handleUploadFile(request, context);
-        String stringFileInfo = mapper.writeValueAsString(file);
+        // Check here if the file is null
+        Part fileCheck = request.getPart("file");
 
-        Card card = new Card(id, question, answerOption, answer, stringFileInfo, category, subCategory);
-        cardDao.updateCard(card);
+        Card card = null;
+
+        if(fileCheck.getSize() != 0) {
+
+            ServletContext context = getServletContext();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            FileInfo file = FileUtil.handleUploadFile(request, context);
+            String stringFileInfo = mapper.writeValueAsString(file);
+
+            card = new Card(id, question, answerOption, answer, stringFileInfo, category, subCategory);
+            cardDao.updateCard(card);
+        } else {
+            card = new Card(id, question, answerOption, answer, category, subCategory);
+            cardDao.updateCardWithoutFile(card);
+        }
 
 
         String json = mapper.writeValueAsString(card);

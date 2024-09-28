@@ -8,17 +8,17 @@ module.exports = {
     },
     async rewrites() {
         return [
-            // {
-            //   source: '/:path*',
-            //   destination: 'http://localhost:8081/api/:path*',
-            // },
             {
-                source: "/:path*",
-                destination:
-                    process.env.NEXT_PUBLIC_IS_DEV === "true"
-                        ? "http://localhost:8081/api/:path*"
-                        : "https://jasper-server-meh.shop/api/:path*",
+              source: '/:path*',
+              destination: 'http://localhost:8081/api/:path*',
             },
+            // {
+            //     source: "/:path*",
+            //     destination:
+            //         process.env.NEXT_PUBLIC_IS_DEV === "true"
+            //             ? "http://localhost:8081/api/:path*"
+            //             : "https://jasper-server-meh.shop/api/:path*",
+            // },
         ];
     },
     async headers() {

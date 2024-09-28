@@ -135,6 +135,23 @@ public class CardDao {
         }
     }
 
+    public int updateCardWithoutFile(Card card) throws SQLException {
+        String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, category = ?, subCategory = ? WHERE id = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, card.getQuestion());
+            statement.setString(2, card.getAnswerOption());
+            statement.setString(3, card.getAnswer());
+            statement.setString(4, card.getCategory());
+            statement.setString(5, card.getSubCategory());
+            statement.setInt(6, card.getId());
+
+            return statement.executeUpdate();
+        }
+    }
+
     public int deleteCard(int id) throws SQLException {
         String sql = "DELETE FROM card WHERE id = ?";
 
