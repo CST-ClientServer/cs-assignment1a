@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import useWebSocket from "../hook/useWebSocket";
 
 export default function GameRoom() {
+  // [TODO] This should be changed after deployment -> Might be set as an environment variable in next.config.js?
   const {messages, sendMessage} = useWebSocket("ws://localhost:8081/api/game-room");
   const [input, setInput] = useState("");
 
