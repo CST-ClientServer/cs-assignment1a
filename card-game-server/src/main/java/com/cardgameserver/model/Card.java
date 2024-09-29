@@ -32,6 +32,14 @@ public class Card {
         this.subCategory = subCategory;
     }
 
+    public Card(int id, String question, String answerOption, String answer, String category, String subCategory) {
+        this.id = id;
+        this.question = question;
+        this.answerOption = answerOption;
+        this.answer = answer;
+        this.category = category;
+        this.subCategory = subCategory;
+    }
 
     public int getId() {
         return id;
