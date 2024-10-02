@@ -7,10 +7,6 @@ import { initialGamer } from "../atom/atom";
 import { useSearchParams } from "next/navigation";
 
 export default function GameRoom() {
-    // [TODO] This should be changed after deployment -> Might be set as an environment variable in next.config.js?
-    const { messages, sendMessage } = useWebSocket(
-        "ws://localhost:8081/api/game-room",
-    );
     const [input, setInput] = useState("");
 
     const [gamer] = useAtom(initialGamer);
@@ -22,6 +18,13 @@ export default function GameRoom() {
 
     const [pin, setPin] = useState(pinFromQuery || "");
     const [inputPin, setInputPin] = useState("");
+
+    const shouldConnect = !!pin || admin;
+
+    const { messages, sendMessage } = useWebSocket(
+        "ws://localhost:8081/api/game-room",
+        shouldConnect,
+    );
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
