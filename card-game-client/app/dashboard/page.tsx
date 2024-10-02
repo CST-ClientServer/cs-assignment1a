@@ -69,6 +69,10 @@ export default function Dashboard() {
         setSelectedSubCategory(null);
     };
 
+    const generateRandonPin = () => {
+        return Math.floor(1000 + Math.random() * 9000);
+    };
+
     if (filteredGroupedCards.length === 0) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -189,7 +193,8 @@ export default function Dashboard() {
                                     className="w-full"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        router.push(`/gameRoom`);
+                                        const pin = generateRandonPin();
+                                        router.push(`/gameRoom?pin=${pin}`);
                                     }}
                                 >
                                     Create Game Room
