@@ -46,3 +46,26 @@ export interface Card {
     category: string;
     subCategory: string;
 }
+
+export interface Question {
+    id: number;
+    question: string;
+    subCategory: string;
+    answer: string;
+    answerOptions: string[];
+    file?: File;
+}
+
+export interface File {
+    originalName: string;
+    savedPath: string;
+    savedName: string;
+    size: string;
+    extension: string;
+}
+
+export interface SubCategory {
+    category: Category;
+    subCategory: string;
+    questions: Question[];
+}
