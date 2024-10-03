@@ -67,6 +67,9 @@ public class CardServlet extends HttpServlet {
                 case "/getByCategory":
                     getCardByCategory(request, response);
                     break;
+                case "/getBySubCategory":
+                    getCardBySubCategory(request, response);
+                    break;
                 case "/insert":
                     insertCard(request, response);
                     break;
@@ -109,6 +112,21 @@ public class CardServlet extends HttpServlet {
     private void getCardByCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         String category = request.getParameter("category");
         List<Card> listCard = cardDao.getCardByCategory(category);
+        String json = mapper.writeValueAsString(listCard);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
+            out.flush();
+        }
+
+    }
+
+    private void getCardBySubCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        String subCategory = request.getParameter("subCategory");
+        List<Card> listCard = cardDao.getCardBySubCategory(subCategory);
         String json = mapper.writeValueAsString(listCard);
 
         response.setContentType("application/json");

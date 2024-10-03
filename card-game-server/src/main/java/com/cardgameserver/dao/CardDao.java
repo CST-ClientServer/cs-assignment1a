@@ -117,6 +117,34 @@ public class CardDao {
         return listCard;
     }
 
+    public List<Card> getCardBySubCategory(String subCategory) throws SQLException {
+        List<Card> listCard = new ArrayList<>();
+        String sql = "SELECT * FROM card WHERE subCategory = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, subCategory);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String question = resultSet.getString("question");
+                    String answerOption = resultSet.getString("answer_option");
+                    String answer = resultSet.getString("answer");
+                    String categoryResult = resultSet.getString("category");
+                    String file = resultSet.getString("file");
+                    String subCategoryResult = resultSet.getString("subCategory");
+
+                    Card card = new Card(id, question, answerOption, answer, file, categoryResult, subCategoryResult);
+                    listCard.add(card);
+                }
+            }
+        }
+
+        return listCard;
+    }
+
     public int updateCard(Card card) throws SQLException {
         String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ? WHERE id = ?";
 
