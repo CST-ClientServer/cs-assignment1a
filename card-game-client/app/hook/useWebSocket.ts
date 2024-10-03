@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 
-type ChatMessage = {
-    message: string;
+type Message = {
+    event: string;
+    data: string;
 };
 
+
 const useWebSocket = (url: string, shouldConnect: boolean) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [answers, setAnswers] = useState<Message[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
 
@@ -22,8 +25,12 @@ const useWebSocket = (url: string, shouldConnect: boolean) => {
         };
 
         socket.onmessage = (event) => {
-            const data: ChatMessage = JSON.parse(event.data);
-            setMessages((prevMessages) => [...prevMessages, data]);
+            const data: Message = JSON.parse(event.data);          
+            if (data.event === "answerClick") {              
+              setAnswers((prevAnswers) => [...prevAnswers, { event: "answerClick", data: data.data }]);
+            } else {
+              setMessages((prevMessages) => [...prevMessages, data]);
+            }
         };
 
         socket.onerror = (error) => {
@@ -40,13 +47,13 @@ const useWebSocket = (url: string, shouldConnect: boolean) => {
         };
     }, [url, shouldConnect]);
 
-    const sendMessage = (message: ChatMessage) => {
-        if (ws && isConnected) {
-            ws.send(JSON.stringify(message.message));
+    const sendMessage = (message: Message) => {
+        if (ws && isConnected) {          
+            ws.send(JSON.stringify(message));
         }
     };
 
-    return { messages, sendMessage, isConnected };
+    return { messages, answers ,sendMessage, isConnected };
 };
 
 export default useWebSocket;
