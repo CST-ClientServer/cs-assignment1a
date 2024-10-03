@@ -2,6 +2,8 @@
 
 import React, { useState, useLayoutEffect } from "react";
 import { useCardsContext } from "../context/CardsContent";
+import { initialGamer } from "@/app/atom/atom";
+import { useAtom } from "jotai";
 import Header from "../components/header/header";
 import BentoGrid from "../components/ui/bento-grid";
 import Card from "../components/ui/card";
@@ -17,37 +19,13 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import GameCard from "../components/ui/game-card";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
+import { SubCategory } from "../lib/types";
+import { useRouter } from "next/navigation";
 
-interface Question {
-    id: number;
-    question: string;
-    subCategory: string;
-    answer: string;
-    answerOptions: string[];
-    file?: File;
-}
-
-interface File {
-    originalName: string;
-    savedPath: string;
-    savedName: string;
-    size: string;
-    extension: string;
-}
-
-// Define the Category type
-interface Category {
-    id: number;
-    category: string;
-}
-
-// Define the SubCategory type
-interface SubCategory {
-    category: Category;
-    subCategory: string;
-    questions: Question[];
-}
 export default function Dashboard() {
+    const [gamer] = useAtom(initialGamer);
+    const admin = gamer.role === "ADMIN";
+    const router = useRouter();
     const { categoryCards, groupedQuizCards } = useCardsContext();
     const [selectedCategory, setSelectedCategory] = useState<number | "All">(
         "All",
@@ -89,6 +67,10 @@ export default function Dashboard() {
     const handleCloseModal = () => {
         setModalIsOpen(false);
         setSelectedSubCategory(null);
+    };
+
+    const generateRandonPin = () => {
+        return Math.floor(1000 + Math.random() * 9000);
     };
 
     if (filteredGroupedCards.length === 0) {
@@ -147,58 +129,77 @@ export default function Dashboard() {
                         <Card
                             key={card.subCategory}
                             onClick={() => handleSubCategoryClick(card)}
+                            className="flex flex-col h-full"
                         >
-                            <h1 className="text-md sm:text-2xl">
-                                {card.category.category}:{" "}
-                                <span className="text-md">
-                                    {card.subCategory}
-                                </span>
-                            </h1>
-                            <div className="flex justify-center items-center w-full h-40">
-                                {card.questions[0].file?.extension &&
-                                videoFileExtensions.includes(
-                                    card.questions[0].file.extension,
-                                ) ? (
-                                    <video
-                                        src={
-                                            fileUploadUrl +
-                                            card.questions[0].file.savedName
-                                        }
-                                        controls={false}
-                                        width={230}
-                                        height={230}
-                                    />
-                                ) : (
-                                    <Image
-                                        src={
-                                            imageError[card.subCategory] ||
-                                            !card.questions[0].file?.savedName
-                                                ? defaultImageUrl
-                                                : fileUploadUrl +
-                                                  `${card.questions[0].file.savedName}`
-                                        }
-                                        alt={`${card.subCategory} image`}
-                                        className={cn([
-                                            "object-cover flex flex-wrap",
-                                            "rounded-md",
-                                            "mb-6",
-                                        ])}
-                                        width={
-                                            imageError[card.subCategory]
-                                                ? 180
-                                                : 260
-                                        }
-                                        height={
-                                            imageError[card.subCategory]
-                                                ? 180
-                                                : 260
-                                        }
-                                        onError={() =>
-                                            handleImageError(card.subCategory)
-                                        }
-                                    />
-                                )}
+                            <div className="flex-grow">
+                                <h1 className="text-md sm:text-2xl pb-6">
+                                    {card.category.category}:{" "}
+                                    <span className="text-md">
+                                        {card.subCategory}
+                                    </span>
+                                </h1>
+                                <div className="flex justify-center items-center w-full h-40 overflow-hidden rounded-md">
+                                    {card.questions[0].file?.extension &&
+                                    videoFileExtensions.includes(
+                                        card.questions[0].file.extension,
+                                    ) ? (
+                                        <video
+                                            src={
+                                                fileUploadUrl +
+                                                card.questions[0].file.savedName
+                                            }
+                                            controls={false}
+                                            width={230}
+                                            height={230}
+                                            className="object-cover rounded-md"
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={
+                                                imageError[card.subCategory] ||
+                                                !card.questions[0].file
+                                                    ?.savedName
+                                                    ? defaultImageUrl
+                                                    : fileUploadUrl +
+                                                      `${card.questions[0].file.savedName}`
+                                            }
+                                            alt={`${card.subCategory} image`}
+                                            className={cn([
+                                                "object-cover",
+                                                "rounded-md",
+                                            ])}
+                                            width={
+                                                imageError[card.subCategory]
+                                                    ? 180
+                                                    : 260
+                                            }
+                                            height={
+                                                imageError[card.subCategory]
+                                                    ? 180
+                                                    : 260
+                                            }
+                                            onError={() =>
+                                                handleImageError(
+                                                    card.subCategory,
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </div>
                             </div>
+                            {admin && (
+                                <Button
+                                    variant="quiz"
+                                    className="w-full"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const pin = generateRandonPin();
+                                        router.push(`/gameRoom?pin=${pin}`);
+                                    }}
+                                >
+                                    Create Game Room
+                                </Button>
+                            )}
                         </Card>
                     ))}
                 </BentoGrid>

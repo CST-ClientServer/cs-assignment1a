@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Card from "./card";
-import {
-    cn,
-    defaultImageUrl,
-    fileUploadUrl,
-    videoFileExtensions,
-    audioFileExtensions,
-} from "@/app/lib/utils";
+import { cn, fileUploadUrl } from "@/app/lib/utils";
 import { Button } from "./button";
-import { ChevronDownIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import Switch from "react-switch";
 import axios from "axios";
 import { useAtom } from "jotai";
 import { initialQuizCardList } from "@/app/atom/atom";
 import { QuizCard } from "@/app/lib/types";
 import { useCardsContext } from "@/app/context/CardsContent";
+import MediaDisplay from "./game-card/media-display";
+import UserOptionsList from "./game-card/user-options-list";
+import AdminOptionsList from "./game-card/admin-options-list";
+import Header from "./game-card/header";
+import TimerBar from "./game-card/timer-bar";
 
 interface GameCardProps {
     id?: number;
@@ -200,10 +196,8 @@ export default function GameCard({
 
     const handleSaveOrEditing = () => {
         if (isEditing) {
-            console.log("@@@ Edit triggered");
             handleEdit();
         } else {
-            console.log("@@@ Save triggered");
             handleSave();
         }
     };
@@ -222,77 +216,24 @@ export default function GameCard({
 
     const currentItem = subCategoryItems?.[currentItemIndex];
 
-    const getFileExtension = (url: string) => {
-        return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
-    };
-
     return (
         <Card className="w-full lg:w-3/4 h-auto flex-wrap justify-center">
-            <div className="flex justify-between items-center mb-4 w-full">
-                <div className="text-gray-600">
-                    <div>
-                        Category:{" "}
-                        {createCard || (admin && editing) ? (
-                            <Button
-                                variant="outline"
-                                dropdown
-                                dropdownValues={categoryOptions.map(
-                                    (category) => ({
-                                        label: category,
-                                        onClick: () =>
-                                            setEditedCategory(category),
-                                    }),
-                                )}
-                                placeholder={category}
-                                className="w-36 border-thin"
-                            >
-                                <div className="flex items-center justify-between w-full">
-                                    <span>{category}</span>
-                                    <ChevronDownIcon className="h-4 w-4" />
-                                </div>
-                            </Button>
-                        ) : (
-                            category
-                        )}
-                    </div>
-                    <div>
-                        Subcategory:{" "}
-                        {createCard || (admin && editing) ? (
-                            <input
-                                type="text"
-                                placeholder="Subcategory"
-                                value={editedTitle}
-                                onBlur={handleOptionBlur}
-                                onChange={(e) => setEditedTitle(e.target.value)}
-                                className="border rounded p-2 w-36 text-center"
-                                autoFocus
-                            />
-                        ) : admin ? (
-                            `${title}`
-                        ) : (
-                            `${currentItem?.subCategory}`
-                        )}
-                    </div>
-                </div>
-                <div className="flex flex-row gap-3">
-                    {!admin && (
-                        <div className="flex flex-row gap-3 pt-3">
-                            <p>Auto-play</p>
-                            <Switch
-                                onChange={handleChange}
-                                checked={checked}
-                                uncheckedIcon={false}
-                                checkedIcon={false}
-                                width={40}
-                                height={20}
-                            />
-                        </div>
-                    )}
-                    <Button variant="link" onClick={onClose}>
-                        <CrossCircledIcon className="h-5 w-5 text-black dark:text-white" />
-                    </Button>
-                </div>
-            </div>
+            <Header
+                category={category || ""}
+                createCard={createCard}
+                admin={admin}
+                editing={editing ?? false}
+                setEditedCategory={setEditedCategory}
+                categoryOptions={categoryOptions}
+                handleOptionBlur={handleOptionBlur}
+                editedTitle={editedTitle}
+                setEditedTitle={setEditedTitle}
+                title={title}
+                currentItemSubCategory={currentItem?.subCategory}
+                handleChange={handleChange}
+                checked={checked}
+                onClose={onClose}
+            />
 
             {currentItem || admin ? (
                 <div
@@ -326,7 +267,6 @@ export default function GameCard({
                                         setEditedAnswer(e.target.value)
                                     }
                                     className="border rounded p-2 w-full md:w-36 text-center"
-                                    autoFocus
                                 />
                             </div>
                         ) : admin ? (
@@ -335,58 +275,17 @@ export default function GameCard({
                             `${currentItem?.title}`
                         )}
                     </h2>
-                    {videoFileExtensions.includes(
-                        getFileExtension(
+
+                    <MediaDisplay
+                        src={
                             fileUploadUrl +
-                                (currentItem?.media || String(media)),
-                        ),
-                    ) ? (
-                        <video
-                            src={
-                                fileUploadUrl +
-                                (currentItem?.media || String(media))
-                            }
-                            controls={true}
-                            autoPlay={true}
-                            width={200}
-                            height={200}
-                            className={cn(["rounded-lg", "md:w-2/5", "mb-6"])}
-                            onError={() => setMediaUrl(defaultImageUrl)}
-                        />
-                    ) : audioFileExtensions.includes(
-                          getFileExtension(
-                              fileUploadUrl +
-                                  (currentItem?.media || String(media)),
-                          ),
-                      ) ? (
-                        <audio
-                            src={
-                                fileUploadUrl +
-                                (currentItem?.media || String(media))
-                            }
-                            autoPlay={true}
-                            controls={true}
-                            onError={() => setMediaUrl(defaultImageUrl)}
-                        />
-                    ) : (
-                        <Image
-                            src={
-                                editing
-                                    ? mediaUrl
-                                    : fileUploadUrl +
-                                      (currentItem?.media || String(media))
-                            }
-                            width={200}
-                            height={200}
-                            alt={"Quiz card image"}
-                            className={cn([
-                                "rounded-md",
-                                mediaUrl === defaultImageUrl,
-                                "mb-6",
-                            ])}
-                            onError={() => setMediaUrl(defaultImageUrl)}
-                        />
-                    )}
+                            (currentItem?.media || String(media))
+                        }
+                        editing={editing ?? false}
+                        mediaUrl={mediaUrl}
+                        setMediaUrl={setMediaUrl}
+                    />
+
                     {editing && (
                         <div>
                             <input
@@ -409,89 +308,27 @@ export default function GameCard({
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4 pt-3 mx-auto dark:text-black">
-                        {admin
-                            ? editedOptions.map((option, index) => (
-                                  <div key={index}>
-                                      {editingOption === index && editing ? (
-                                          <input
-                                              type="text"
-                                              placeholder={`Option ${
-                                                  index + 1
-                                              }`}
-                                              value={option}
-                                              onChange={(e) =>
-                                                  handleOptionChange(e, index)
-                                              }
-                                              onBlur={handleOptionBlur}
-                                              className="border rounded p-2 w-full md:w-48 md:h-16 text-center"
-                                              autoFocus
-                                          />
-                                      ) : (
-                                          <Button
-                                              variant={
-                                                  editing
-                                                      ? "quiz"
-                                                      : editedAnswer === option
-                                                      ? "selected"
-                                                      : selectedOption === index
-                                                      ? "outline"
-                                                      : "quiz"
-                                              }
-                                              className={cn([
-                                                  "md:w-48",
-                                                  "md:h-16",
-                                                  editing
-                                                      ? "cursor-text"
-                                                      : "cursor-auto",
-                                              ])}
-                                              onClick={() =>
-                                                  handleOptionClick(index)
-                                              }
-                                          >
-                                              {option}
-                                          </Button>
-                                      )}
-                                  </div>
-                              ))
-                            : currentItem?.options.map((option, index) => (
-                                  <div key={index} className="w-full">
-                                      <Button
-                                          variant={
-                                              selectedOption === index
-                                                  ? answer
-                                                        ?.split(",")
-                                                        .map((a) => a.trim())
-                                                        .includes(option)
-                                                      ? "selected"
-                                                      : "quiz"
-                                                  : "outline"
-                                          }
-                                          className="w-full md:w-48 md:h-16 h-12 text-center whitespace-normal"
-                                          onClick={() =>
-                                              handleOptionClick(index)
-                                          }
-                                      >
-                                          {option}
-                                      </Button>
-                                  </div>
-                              ))}
-                    </div>
+                    {admin ? (
+                        <AdminOptionsList
+                            options={editedOptions}
+                            editedAnswer={editedAnswer}
+                            editingOption={editingOption}
+                            editing={editing ?? false}
+                            handleOptionChange={handleOptionChange}
+                            handleOptionBlur={handleOptionBlur}
+                            handleOptionClick={handleOptionClick}
+                        />
+                    ) : (
+                        <UserOptionsList
+                            options={currentItem?.options || []}
+                            selectedOption={selectedOption}
+                            answer={answer}
+                            handleOptionClick={handleOptionClick}
+                        />
+                    )}
 
                     {checked && !admin && (
-                        <div className="w-full pt-6 flex flex-col items-center">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                                <div
-                                    className="bg-blue-600 h-2.5 rounded-full"
-                                    style={{
-                                        width: `${
-                                            (timeLeft / timeLimit) * 100
-                                        }%`,
-                                        transition: "width 0.5s ease-in-out",
-                                    }}
-                                ></div>
-                            </div>
-                        </div>
+                        <TimerBar timeLeft={timeLeft} timeLimit={timeLimit} />
                     )}
 
                     <div
@@ -552,12 +389,10 @@ export default function GameCard({
                                     className="bg-gray-800 hover:bg-gray-700 text-gray-100 hover:text-gray-100 border hover:border-gray-700"
                                     onClick={() => {
                                         if (editing) {
-                                            // Handle save logic here
                                             handleSaveOrEditing();
                                         } else {
                                             setEditing(true);
                                             setIsEditing(true);
-                                            console.log("@@@ Clicked");
                                         }
                                     }}
                                     disabled={
