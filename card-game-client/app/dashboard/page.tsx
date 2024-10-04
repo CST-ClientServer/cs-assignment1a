@@ -69,7 +69,7 @@ export default function Dashboard() {
         setSelectedSubCategory(null);
     };
 
-    const generateRandonPin = () => {
+    const generateRandomPin = () => {
         return Math.floor(1000 + Math.random() * 9000);
     };
 
@@ -190,11 +190,11 @@ export default function Dashboard() {
                             {admin && (
                                 <Button
                                     variant="quiz"
-                                    className="w-full"
+                                    className="w-full"                                    
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const pin = generateRandonPin();
-                                        router.push(`/gameRoom?pin=${pin}`);
+                                        const pin = generateRandomPin();
+                                        router.push(`/gameRoom?pin=${pin}&subCategory=${card.subCategory}`);
                                     }}
                                 >
                                     Create Game Room

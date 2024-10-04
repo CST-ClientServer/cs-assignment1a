@@ -7,7 +7,6 @@ type Message = {
     data: string;
 };
 
-
 const useWebSocket = (url: string, shouldConnect: boolean) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [answers, setAnswers] = useState<Message[]>([]);
@@ -25,11 +24,14 @@ const useWebSocket = (url: string, shouldConnect: boolean) => {
         };
 
         socket.onmessage = (event) => {
-            const data: Message = JSON.parse(event.data);          
-            if (data.event === "answerClick") {              
-              setAnswers((prevAnswers) => [...prevAnswers, { event: "answerClick", data: data.data }]);
+            const data: Message = JSON.parse(event.data);
+            if (data.event === "answerClick") {
+                setAnswers((prevAnswers) => [
+                    ...prevAnswers,
+                    { event: "answerClick", data: data.data },
+                ]);
             } else {
-              setMessages((prevMessages) => [...prevMessages, data]);
+                setMessages((prevMessages) => [...prevMessages, data]);
             }
         };
 
@@ -48,12 +50,12 @@ const useWebSocket = (url: string, shouldConnect: boolean) => {
     }, [url, shouldConnect]);
 
     const sendMessage = (message: Message) => {
-        if (ws && isConnected) {          
+        if (ws && isConnected) {
             ws.send(JSON.stringify(message));
         }
     };
 
-    return { messages, answers ,sendMessage, isConnected };
+    return { messages, answers, sendMessage, isConnected };
 };
 
 export default useWebSocket;
