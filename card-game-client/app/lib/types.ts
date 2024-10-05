@@ -27,10 +27,18 @@ export interface SubCategoryGroup {
     questions: QuizCard[];
 }
 
+export interface GameRoom {
+    id: number;
+    pin: number;
+    subCategory: string;
+    createdAt: string;
+}
+
 export interface CardsContextType {
     categoryCards: Category[];
     groupedQuizCards: SubCategoryGroup[];
     quizCardList: QuizCard[];
+    gameRooms: GameRoom[];
     isLoading: boolean;
     fetchCategories: () => void;
     fetchQuizCards: () => void;
