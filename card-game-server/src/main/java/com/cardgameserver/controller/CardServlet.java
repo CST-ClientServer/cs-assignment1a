@@ -94,7 +94,7 @@ public class CardServlet extends HttpServlet {
 
     private void getCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         int id = Integer.parseInt(request.getParameter("id"));
-        Card card = cardDao.getCard(id);
+        Card card = cardDao.get(id);
 
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         String json = mapper.writeValueAsString(card);
@@ -155,7 +155,7 @@ public class CardServlet extends HttpServlet {
 
 
         Card card = new Card(question, answerOption, answer, stringFileInfo, category, subCategory);
-        cardDao.insertCard(card);
+        cardDao.insert(card);
 
         String json = mapper.writeValueAsString(card);
         response.setContentType("application/json");
@@ -191,7 +191,7 @@ public class CardServlet extends HttpServlet {
             String stringFileInfo = mapper.writeValueAsString(file);
 
             card = new Card(id, question, answerOption, answer, stringFileInfo, category, subCategory);
-            cardDao.updateCard(card);
+            cardDao.update(card);
         } else {
             card = new Card(id, question, answerOption, answer, category, subCategory);
             cardDao.updateCardWithoutFile(card);
@@ -211,7 +211,7 @@ public class CardServlet extends HttpServlet {
 
     private void deleteCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         int id = Integer.parseInt(request.getParameter("id"));
-        cardDao.deleteCard(id);
+        cardDao.delete(id);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try (PrintWriter out = response.getWriter()) {
@@ -234,7 +234,7 @@ public class CardServlet extends HttpServlet {
     }
 
     private void listAllCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        List<Card> listGamer = cardDao.listAllCard();
+        List<Card> listGamer = cardDao.getAll();
         String json = mapper.writeValueAsString(listGamer);
 
         response.setContentType("application/json");
