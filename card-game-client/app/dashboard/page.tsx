@@ -2,6 +2,7 @@
 
 import React, { useState, useLayoutEffect } from "react";
 import { useCardsContext } from "../context/CardsContent";
+import axios from "axios";
 import { initialGamer } from "@/app/atom/atom";
 import { useAtom } from "jotai";
 import Header from "../components/header/header";
@@ -69,8 +70,23 @@ export default function Dashboard() {
         setSelectedSubCategory(null);
     };
 
-    const generateRandomPin = () => {
-        return Math.floor(1000 + Math.random() * 9000);
+    const generatePinFromServer = async (subCategory: string) => {
+        try {
+            const response = await axios.post(
+                `/game-room/generate?subCategory=${subCategory}`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
+
+            return response.data.pin;
+        } catch (error) {
+            console.error("Error generating PIN:", error);
+            return null;
+        }
     };
 
     if (filteredGroupedCards.length === 0) {
@@ -192,12 +208,17 @@ export default function Dashboard() {
                                     <Button
                                         variant="quiz"
                                         className="w-full mt-auto"
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             e.stopPropagation();
-                                            const pin = generateRandomPin();
-                                            router.push(
-                                                `/gameRoom?pin=${pin}&subCategory=${card.subCategory}`,
-                                            );
+                                            const pin =
+                                                await generatePinFromServer(
+                                                    card.subCategory,
+                                                );
+                                            if (pin) {
+                                                router.push(
+                                                    `/gameRoom?pin=${pin}&subCategory=${card.subCategory}`,
+                                                );
+                                            }
                                         }}
                                     >
                                         Create Game Room

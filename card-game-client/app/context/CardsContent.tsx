@@ -28,6 +28,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
         SubCategoryGroup[]
     >([]);
     const [quizCardList, setQuizCardList] = useState<QuizCard[]>([]);
+    const [gameRooms, setGameRooms] = useState([]);
     const hasFetched = useRef(false);
 
     // Fetch quiz cards
@@ -49,6 +50,16 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error fetching quiz cards:", error);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const fetchGameRooms = useCallback(async () => {
+        try {
+            const response = await axios.get("/game-room/list");
+            console.log(response.data);
+            setGameRooms(response.data);
+        } catch (error) {
+            console.error("Error fetching game rooms:", error);
+        }
     }, []);
 
     // Group quiz cards by category and subcategory
@@ -97,7 +108,11 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
             if (!hasFetched.current) {
                 setIsLoading(true);
                 try {
-                    await Promise.all([fetchQuizCards(), fetchCategories()]);
+                    await Promise.all([
+                        fetchQuizCards(),
+                        fetchCategories(),
+                        fetchGameRooms(),
+                    ]);
                 } finally {
                     setIsLoading(false);
                     hasFetched.current = true;
@@ -107,7 +122,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
         };
 
         fetchData();
-    }, [fetchQuizCards, fetchCategories]);
+    }, [fetchQuizCards, fetchCategories, fetchGameRooms]);
 
     return (
         <CardsContext.Provider
@@ -117,6 +132,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
                 isLoading,
                 fetchCategories,
                 fetchQuizCards,
+                gameRooms,
                 quizCardList,
                 refetch,
             }}

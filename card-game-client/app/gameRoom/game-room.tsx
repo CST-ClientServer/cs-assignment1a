@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useLayoutEffect } from "react";
 import useWebSocket from "../hook/useWebSocket";
 import { useAtom } from "jotai";
 import { initialGamer } from "../atom/atom";
@@ -19,6 +19,7 @@ import { ChevronRightIcon } from "lucide-react";
 
 export default function GameRoom() {
     const router = useRouter();
+
     const [input, setInput] = useState("");
     const [answer, setAnswer] = useState("");
     const [loading, setLoading] = useState(false);
@@ -33,8 +34,9 @@ export default function GameRoom() {
 
     const [pin, setPin] = useState(pinFromQuery || "");
     const [inputPin, setInputPin] = useState("");
+    const [validPin, setValidPin] = useState(false);
 
-    const shouldConnect = !!pin || admin;
+    const shouldConnect = (!!pin && validPin) || admin;
 
     const [quizCards, setQuizCards] = useState<QuizCard[]>([]);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -42,36 +44,85 @@ export default function GameRoom() {
         {},
     );
 
+    // Validate
+    const validatePin = useCallback(async () => {
+        if (admin) {
+            setValidPin(true);
+            return;
+        }
+
+        if (pin) {
+            try {
+                const res = await axios.get(`/game-room/getByPin?pin=${pin}`);
+                if (res.status === 200 && res.data.isValid) {
+                    setValidPin(true);
+                }
+            } catch (error) {
+                setPin("");
+                setValidPin(false);
+                router.push("/gameRoom");
+                alert("Invalid PIN. Redirecting to PIN input page.");
+            }
+        }
+    }, [pin, admin, router]);
+
     const handleImageError = (id: number) => {
         setImageError((prev) => ({ ...prev, [id]: true }));
     };
 
-    const getQuizCards = async () => {
-        setLoading(true);
-        const res = await axios
-            .get(`/card/getBySubCategory?subCategory=${subCategoryFromQuery}`)
-            .then((response) => {
-                return response;
-            });
-        const quizCards: QuizCard[] = res.data.map((card: Card) => ({
-            ...card,
-            file: card.file ? JSON.parse(card.file) : undefined,
-            answerOptions:
-                typeof card.answerOption === "string"
-                    ? card.answerOption.split(",")
-                    : card.answerOption,
-        }));
+    const getGameRoomByPin = useCallback(
+        async (enteredPin: string) => {
+            try {
+                const res = await axios.get(
+                    `/game-room/getByPin?pin=${enteredPin}`,
+                );
+                if (res.status === 200) {
+                    const gameRoom = res.data;
+                    // Redirect to the game room page with the valid PIN and subCategory
+                    router.push(
+                        `/gameRoom?pin=${enteredPin}&subCategory=${gameRoom.subCategory}`,
+                    );
+                    setPin(enteredPin);
+                    setValidPin(true);
+                }
+            } catch (error) {
+                console.error("Error fetching game room:", error);
+                setPin("");
+                setValidPin(false);
+                alert("Invalid PIN. Please try again.");
+            }
+        },
+        [router],
+    );
 
-        setQuizCards(quizCards);
-        setLoading(false);
-    };
+    useLayoutEffect(() => {
+        const fetchQuizCards = async () => {
+            setLoading(true);
+            try {
+                const res = await axios.get(
+                    `/card/getBySubCategory?subCategory=${subCategoryFromQuery}`,
+                );
+                const quizCards = res.data.map((card: Card) => ({
+                    ...card,
+                    file: card.file ? JSON.parse(card.file) : undefined,
+                    answerOptions:
+                        typeof card.answerOption === "string"
+                            ? card.answerOption.split(",")
+                            : card.answerOption,
+                }));
+                setQuizCards(quizCards);
+            } catch (error) {
+                console.error("Error fetching quiz cards:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    useEffect(() => {
-        getQuizCards();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        fetchQuizCards();
+        validatePin();
+    }, [subCategoryFromQuery, validatePin]);
 
-    // answers should contain the answers of all players
+    // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
         "ws://localhost:8081/api/game-room",
         shouldConnect,
@@ -120,7 +171,7 @@ export default function GameRoom() {
         );
     }
 
-    if (!pin && !admin) {
+    if ((!pin && !admin) || (validPin === false && !admin)) {
         // Show PIN input form
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -130,7 +181,7 @@ export default function GameRoom() {
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
-                        setPin(inputPin);
+                        getGameRoomByPin(inputPin); // Fetch game room by PIN
                     }}
                     className="w-full max-w-sm"
                 >
