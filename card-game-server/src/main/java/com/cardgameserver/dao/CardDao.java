@@ -2,24 +2,35 @@ package com.cardgameserver.dao;
 
 import com.cardgameserver.model.Card;
 import com.cardgameserver.model.Category;
+import com.cardgameserver.repository.IRepository;
 import com.cardgameserver.util.ConnectionManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
-public class CardDao {
-    private Category realCategory;
-    ObjectMapper mapper = new ObjectMapper();
+public class CardDao implements IRepository<Card> {
+    private Connection connection;
+    private ObjectMapper mapper = new ObjectMapper();
 
-    public boolean insertCard(Card card) throws SQLException {
+    @Override
+    public void init() throws SQLException {
+        // Initialize the connection (could use a connection string here if needed)
+        this.connection = ConnectionManager.getConnection();
+    }
+
+    @Override
+    public void close() throws SQLException {
+        // Close the connection
+        ConnectionManager.closeConnection(this.connection);
+    }
+
+    @Override
+    public boolean insert(Card card) throws SQLException {
         String sql = "INSERT INTO card (question, answer_option, answer, file, category, subCategory) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, card.getQuestion());
             statement.setString(2, card.getAnswerOption());
             statement.setString(3, card.getAnswer());
@@ -31,12 +42,12 @@ public class CardDao {
         }
     }
 
-    public List<Card> listAllCard() throws SQLException {
+    @Override
+    public List<Card> getAll() throws SQLException {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+        try (PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -47,9 +58,8 @@ public class CardDao {
                 String subCategory = resultSet.getString("subCategory");
 
                 String category = resultSet.getString("category");
-                realCategory = new Category(category);
+                Category realCategory = new Category(category);
                 category = mapper.writeValueAsString(realCategory);
-
 
                 String file = resultSet.getString("file");
 
@@ -63,13 +73,12 @@ public class CardDao {
         return listCard;
     }
 
-    public Card getCard(int id) throws SQLException {
+    @Override
+    public Card get(int id) throws SQLException {
         Card card = null;
         String sql = "SELECT * FROM card WHERE id = ?";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -93,9 +102,7 @@ public class CardDao {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card WHERE category = ?";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, category);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -121,9 +128,7 @@ public class CardDao {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card WHERE subCategory = ?";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, subCategory);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -145,12 +150,11 @@ public class CardDao {
         return listCard;
     }
 
-    public int updateCard(Card card) throws SQLException {
+    @Override
+    public int update(Card card) throws SQLException {
         String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ? WHERE id = ?";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, card.getQuestion());
             statement.setString(2, card.getAnswerOption());
             statement.setString(3, card.getAnswer());
@@ -180,12 +184,11 @@ public class CardDao {
         }
     }
 
-    public int deleteCard(int id) throws SQLException {
+    @Override
+    public int delete(int id) throws SQLException {
         String sql = "DELETE FROM card WHERE id = ?";
 
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
             return statement.executeUpdate();
@@ -210,4 +213,6 @@ public class CardDao {
 
         return listCategory;
     }
+
+
 }
