@@ -31,7 +31,7 @@ public class GameRoomServlet extends HttpServlet {
     private static final Set<GameRoomServlet> connections = new CopyOnWriteArraySet<>();
     private static final GameRoomDao gameRoomDao = new GameRoomDao();
 
-    private final String nickname;
+    private String nickname;
     private Session session;
     private Queue<String> messageBacklog = new ArrayDeque<>();
     private boolean messageInProgress = false;
@@ -44,6 +44,16 @@ public class GameRoomServlet extends HttpServlet {
     @OnOpen
     public void start(Session session) {
         this.session = session;
+
+        Map<String, List<String>> params = session.getRequestParameterMap();
+        List<String> userNameParam = params.get("userName");
+
+        if (userNameParam != null && !userNameParam.isEmpty()) {
+            nickname = userNameParam.get(0);
+        } else {
+            nickname = GUEST_PREFIX + connectionIds.getAndIncrement();
+        }
+
         connections.add(this);
         String message = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has joined.");
         System.out.println("New connection established: " + nickname);

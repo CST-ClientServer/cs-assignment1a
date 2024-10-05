@@ -124,7 +124,7 @@ export default function GameRoom() {
 
     // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
-        "ws://localhost:8081/api/game-room",
+        "ws://localhost:8081/api/game-room?userName=" + gamer.firstName,
         shouldConnect,
     );
 
