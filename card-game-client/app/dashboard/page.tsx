@@ -69,7 +69,7 @@ export default function Dashboard() {
         setSelectedSubCategory(null);
     };
 
-    const generateRandonPin = () => {
+    const generateRandomPin = () => {
         return Math.floor(1000 + Math.random() * 9000);
     };
 
@@ -129,10 +129,10 @@ export default function Dashboard() {
                         <Card
                             key={card.subCategory}
                             onClick={() => handleSubCategoryClick(card)}
-                            className="flex flex-col h-full"
+                            className="flex h-full flex-wrap"
                         >
                             <div className="flex-grow">
-                                <h1 className="text-md sm:text-2xl pb-6">
+                                <h1 className="text-md sm:text-2xl pb-8">
                                     {card.category.category}:{" "}
                                     <span className="text-md">
                                         {card.subCategory}
@@ -188,17 +188,21 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             {admin && (
-                                <Button
-                                    variant="quiz"
-                                    className="w-full"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        const pin = generateRandonPin();
-                                        router.push(`/gameRoom?pin=${pin}`);
-                                    }}
-                                >
-                                    Create Game Room
-                                </Button>
+                                <div className="w-full flex flex-col justify-between">
+                                    <Button
+                                        variant="quiz"
+                                        className="w-full mt-auto"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const pin = generateRandomPin();
+                                            router.push(
+                                                `/gameRoom?pin=${pin}&subCategory=${card.subCategory}`,
+                                            );
+                                        }}
+                                    >
+                                        Create Game Room
+                                    </Button>
+                                </div>
                             )}
                         </Card>
                     ))}

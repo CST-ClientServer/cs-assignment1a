@@ -5,16 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 @ServerEndpoint("/game-room")
 public class GameRoomServlet {
@@ -25,10 +24,6 @@ public class GameRoomServlet {
 
     private final String nickname;
     private Session session;
-    /*
-     * The queue of messages that may build up while another message is being sent. The thread that sends a message is
-     * responsible for clearing any queue that builds up while that message is being sent.
-     */
     private Queue<String> messageBacklog = new ArrayDeque<>();
     private boolean messageInProgress = false;
 
@@ -36,45 +31,61 @@ public class GameRoomServlet {
         nickname = GUEST_PREFIX + connectionIds.getAndIncrement();
     }
 
-
     @OnOpen
     public void start(Session session) {
         this.session = session;
         connections.add(this);
-        String message = String.format("{\"message\": \"%s %s\"}", nickname, "has joined.");
-
+        String message = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has joined.");
         broadcast(message);
     }
-
 
     @OnClose
     public void end() {
         connections.remove(this);
-        String message = String.format("{\"message\": \"%s %s\"}", nickname, "has disconnected.");
+        String message = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has disconnected.");
         broadcast(message);
     }
 
-
     @OnMessage
     public void incoming(String message) {
-        // Never trust the client
-        String filteredMessage = String.format("{\"message\": \"%s %s\"}", nickname, HTMLFilter.filter(message));
+        try {
+            JSONObject jsonMessage = new JSONObject(message);
+            String eventType = jsonMessage.get("event").toString();
+            switch (eventType) {
+                case "answerClick":
+                    handleAnswerClick(jsonMessage.get("data").toString());
+                    break;
+                default:
+                    handleChatMessage(jsonMessage.get("data").toString());
+                    break;
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleAnswerClick(String answer) throws IOException {
+        String answerMessage = String.format("{\"event\":\"answerClick\", \"data\": \"%s %s\"}", nickname, answer);
+        String answeredMessage = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has answered.");
+        broadcast(answerMessage);
+        broadcast(answeredMessage);
+    }
+
+    private void handleChatMessage(String message) {
+        String filteredMessage = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, HTMLFilter.filter(message));
         broadcast(filteredMessage);
     }
 
-
     @OnError
-    public void onError(Throwable t) throws Throwable {
+    public void onError(Throwable t) {
         System.out.println("Chat Error: " + t.toString());
     }
 
+    private void sendToSpecificUser(Session session, String msg) throws IOException {
+        session.getBasicRemote().sendText(msg);
+    }
 
-    /*
-     * synchronized blocks are limited to operations that are expected to be quick. More specifically, messages are not
-     * sent from within a synchronized block.
-     */
     private void sendMessage(String msg) throws IOException {
-
         synchronized (this) {
             if (messageInProgress) {
                 messageBacklog.add(msg);
@@ -96,10 +107,8 @@ public class GameRoomServlet {
                     queueHasMessagesToBeSent = false;
                 }
             }
-
         } while (queueHasMessagesToBeSent);
     }
-
 
     private static void broadcast(String msg) {
         for (GameRoomServlet client : connections) {
