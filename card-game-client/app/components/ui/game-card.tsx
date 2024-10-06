@@ -147,8 +147,8 @@ export default function GameCard({
         };
 
         axios({
-            method: "post",
-            url: "/card/update?id=" + id,
+            method: "put",
+            url: "/cards/id/" + id,
             data: payload,
             headers: { "Content-Type": "multipart/form-data" },
         })
@@ -178,7 +178,7 @@ export default function GameCard({
 
         axios({
             method: "post",
-            url: "/card/insert",
+            url: "/cards/",
             data: payload,
             headers: { "Content-Type": "multipart/form-data" },
         })
@@ -354,8 +354,8 @@ export default function GameCard({
                                             return;
                                         }
                                         axios({
-                                            method: "get",
-                                            url: "/card/delete?id=" + id,
+                                            method: "delete",
+                                            url: "/cards/id/" + id,
                                         })
                                             .then(() => {
                                                 setAddedCardList(

@@ -34,7 +34,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
     // Fetch quiz cards
     const fetchQuizCards = useCallback(async () => {
         try {
-            const response = await axios.get("/card/getAll");
+            const response = await axios.get("/cards/");
             const quizCards: QuizCard[] = response.data.map((card: Card) => ({
                 ...card,
                 category: JSON.parse(card.category),
@@ -87,7 +87,7 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
     // Fetch categories
     const fetchCategories = useCallback(async () => {
         try {
-            const response = await axios.get("/card/getAllCategory");
+            const response = await axios.get("/cards/categories");
             setCategoryCards(response.data);
         } catch (error) {
             console.error("Error fetching categories:", error);

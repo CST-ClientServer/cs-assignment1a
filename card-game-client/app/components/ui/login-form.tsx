@@ -47,7 +47,7 @@ export default function LoginForm() {
 
         axios({
             method: "post",
-            url: "/gamer/login",
+            url: "/gamers/login",
             data: payload,
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
