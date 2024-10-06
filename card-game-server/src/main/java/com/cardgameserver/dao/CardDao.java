@@ -30,7 +30,8 @@ public class CardDao implements IRepository<Card> {
     @Override
     public boolean insert(Card card) throws SQLException {
         String sql = "INSERT INTO card (question, answer_option, answer, file, category, subCategory) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, card.getQuestion());
             statement.setString(2, card.getAnswerOption());
             statement.setString(3, card.getAnswer());
@@ -47,7 +48,8 @@ public class CardDao implements IRepository<Card> {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql);
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -78,7 +80,8 @@ public class CardDao implements IRepository<Card> {
         Card card = null;
         String sql = "SELECT * FROM card WHERE id = ?";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -102,7 +105,8 @@ public class CardDao implements IRepository<Card> {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card WHERE category = ?";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, category);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -128,7 +132,8 @@ public class CardDao implements IRepository<Card> {
         List<Card> listCard = new ArrayList<>();
         String sql = "SELECT * FROM card WHERE subCategory = ?";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, subCategory);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -154,7 +159,8 @@ public class CardDao implements IRepository<Card> {
     public int update(Card card) throws SQLException {
         String sql = "UPDATE card SET question = ?, answer_option = ?, answer = ?, file = ?, category = ?, subCategory = ? WHERE id = ?";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, card.getQuestion());
             statement.setString(2, card.getAnswerOption());
             statement.setString(3, card.getAnswer());
@@ -188,7 +194,8 @@ public class CardDao implements IRepository<Card> {
     public int delete(int id) throws SQLException {
         String sql = "DELETE FROM card WHERE id = ?";
 
-        try (PreparedStatement statement = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
             return statement.executeUpdate();
