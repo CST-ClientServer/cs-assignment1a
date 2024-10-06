@@ -26,7 +26,7 @@ public class LoggingAspect {
 
         Object result = joinPoint.proceed();
 
-        long timeTaken = System.currentTimeMillis() - startTime;  // 걸린 시간 계산
+        long timeTaken = System.currentTimeMillis() - startTime;
         System.out.println(joinPoint.getSignature().getName() + " Method " + timeTaken + " ms spent.");
 
         return result;
