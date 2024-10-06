@@ -140,6 +140,14 @@ export default function Dashboard() {
                     </div>
                 </div>
 
+                {!admin && (
+                    <div className="flex justify-end p-4">
+                        <Button variant="selected">
+                            <a href="/gameRoom">Join Game Room</a>
+                        </Button>
+                    </div>
+                )}
+
                 <BentoGrid className="pt-6 pb-10 gap-20">
                     {filteredGroupedCards.map((card) => (
                         <Card

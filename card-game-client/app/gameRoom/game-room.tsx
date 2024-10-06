@@ -16,6 +16,8 @@ import { QuizCard, Card } from "../lib/types";
 import Image from "next/image";
 import { ThreeDots } from "react-loader-spinner";
 import { ChevronRightIcon } from "lucide-react";
+import ShowAnswersChart from "./bar-chart";
+import Modal from "react-modal";
 
 export default function GameRoom() {
     const router = useRouter();
@@ -35,6 +37,7 @@ export default function GameRoom() {
     const [pin, setPin] = useState(pinFromQuery || "");
     const [inputPin, setInputPin] = useState("");
     const [validPin, setValidPin] = useState(false);
+    const [showAnswersChart, setShowAnswersChart] = useState(false);
 
     const shouldConnect = (!!pin && validPin) || admin;
 
@@ -95,6 +98,8 @@ export default function GameRoom() {
         [router],
     );
 
+    console.log(quizCards);
+
     useLayoutEffect(() => {
         const fetchQuizCards = async () => {
             setLoading(true);
@@ -126,12 +131,13 @@ export default function GameRoom() {
     const { messages, answers, sendMessage } = useWebSocket(
         "ws://localhost:8081/api/game-room?userName=" + gamer.firstName,
         shouldConnect,
+        setCurrentSlide,
+        setShowAnswersChart,
     );
 
     const handleAnswerSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         sendMessage({ event: "answerClick", data: answer });
-        setAnswer("");
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -141,17 +147,25 @@ export default function GameRoom() {
     };
 
     const handleShowAnswers = () => {
-        console.log("Submitted Answers: ", answers);
+        setShowAnswersChart(true);
+        sendMessage({ event: "showAnswersModal", data: "show" });
     };
 
     const handleNextSlide = () => {
         if (currentSlide < quizCards.length - 1) {
-            setCurrentSlide(currentSlide + 1);
+            const newSlide = currentSlide + 1;
+            setCurrentSlide(newSlide);
+            setAnswer("");
+            // slide change ws
+            sendMessage({ event: "slideChange", data: newSlide.toString() });
         }
         if (currentSlide === quizCards.length - 1) {
+            sendMessage({ event: "redirectToDashboard", data: "" });
             router.push("/dashboard");
         }
     };
+
+    console.log(quizCards[currentSlide]?.answer);
 
     if (loading) {
         return (
@@ -192,8 +206,12 @@ export default function GameRoom() {
                         placeholder="Enter PIN"
                         className="w-full p-2 mb-4 border border-gray-300 rounded"
                     />
-                    <Button type="submit" className="w-full">
-                        Join
+                    <Button
+                        type="submit"
+                        variant="selected"
+                        className="w-full mt-2"
+                    >
+                        Join Game
                     </Button>
                 </form>
             </div>
@@ -378,6 +396,21 @@ export default function GameRoom() {
                     </Button>
                 </div>
             )}
+            <Modal
+                isOpen={showAnswersChart}
+                contentLabel="Game Card Modal"
+                className="flex items-center justify-center fixed inset-0 z-50 dark:bg-gray-800"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+                ariaHideApp={false}
+            >
+                <div className="p-4 md:w-5/6 bg-gray-200 rounded">
+                    <ShowAnswersChart
+                        allAnswers={answers}
+                        onClose={() => setShowAnswersChart(false)}
+                        answer={quizCards[currentSlide]?.answer}
+                    />
+                </div>
+            </Modal>
         </div>
     );
 }

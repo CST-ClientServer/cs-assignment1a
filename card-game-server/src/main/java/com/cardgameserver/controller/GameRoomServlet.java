@@ -30,6 +30,7 @@ public class GameRoomServlet extends HttpServlet {
     private static final AtomicInteger connectionIds = new AtomicInteger(0);
     private static final Set<GameRoomServlet> connections = new CopyOnWriteArraySet<>();
     private static final GameRoomDao gameRoomDao = new GameRoomDao();
+    private static final Map<String, List<String>> answersMap = new HashMap<>();
 
     private String nickname;
     private Session session;
@@ -56,7 +57,6 @@ public class GameRoomServlet extends HttpServlet {
 
         connections.add(this);
         String message = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has joined.");
-        System.out.println("New connection established: " + nickname);
         broadcast(message);
     }
 
@@ -64,13 +64,11 @@ public class GameRoomServlet extends HttpServlet {
     public void end() {
         connections.remove(this);
         String message = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has disconnected.");
-        System.out.println("Connection closed: " + nickname);
         broadcast(message);
     }
 
     @OnMessage
     public void incoming(String message) {
-        System.out.println("Incoming message: " + message);
         try {
             JSONObject jsonMessage = new JSONObject(message);
             String eventType = jsonMessage.get("event").toString();
@@ -78,26 +76,49 @@ public class GameRoomServlet extends HttpServlet {
                 case "answerClick":
                     handleAnswerClick(jsonMessage.get("data").toString());
                     break;
+                case "slideChange":
+                    handleSlideChange(jsonMessage.get("data").toString());
+                    break;
+                case "redirectToDashboard":
+                    handleRedirectToDashboard();
+                    break;
+                case "showAnswersModal":
+                    handleShowAnswersModal();
+                    break;
                 default:
                     handleChatMessage(jsonMessage.get("data").toString());
                     break;
             }
         } catch (JSONException | IOException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
+    }
+
+    private void handleSlideChange(String newSlide) throws IOException {
+        String slideMessage = String.format("{\"event\":\"slideChange\", \"data\": \"%s\"}", newSlide);
+        broadcast(slideMessage);
+    }
+
+    private void handleRedirectToDashboard() throws IOException {
+        String redirectMessage = "{\"event\":\"redirectToDashboard\", \"data\": \"\"}";
+        broadcast(redirectMessage);
+    }
+
+    private void handleShowAnswersModal() throws IOException {
+        String modalMessage = "{\"event\":\"showAnswersModal\", \"data\": \"show\"}";
+        broadcast(modalMessage);
     }
 
     private void handleAnswerClick(String answer) throws IOException {
         String answerMessage = String.format("{\"event\":\"answerClick\", \"data\": \"%s %s\"}", nickname, answer);
         String answeredMessage = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, "has answered.");
-        System.out.println("Handling answer click from " + nickname + ": " + answer);
+        answersMap.computeIfAbsent(nickname, k -> new ArrayList<>()).add(answer);
         broadcast(answerMessage);
         broadcast(answeredMessage);
     }
 
     private void handleChatMessage(String message) {
         String filteredMessage = String.format("{\"event\":\"messageSend\", \"data\": \"%s %s\"}", nickname, HTMLFilter.filter(message));
-        System.out.println("Handling chat message from " + nickname + ": " + message);
         broadcast(filteredMessage);
     }
 
@@ -110,7 +131,6 @@ public class GameRoomServlet extends HttpServlet {
         synchronized (this) {
             if (messageInProgress) {
                 messageBacklog.add(msg);
-                System.out.println("Message added to backlog for " + nickname + ": " + msg);
                 return;
             } else {
                 messageInProgress = true;
@@ -123,9 +143,7 @@ public class GameRoomServlet extends HttpServlet {
         do {
             try {
                 session.getBasicRemote().sendText(messageToSend);
-                System.out.println("Message sent to " + nickname + ": " + messageToSend);
             } catch (IOException e) {
-                System.out.println("Failed to send message to " + nickname + ": " + e.getMessage());
                 throw e;
             }
 
@@ -140,12 +158,10 @@ public class GameRoomServlet extends HttpServlet {
     }
 
     private static void broadcast(String msg) {
-        System.out.println("Broadcasting message: " + msg);
         for (GameRoomServlet client : connections) {
             try {
                 client.sendMessage(msg);
             } catch (IOException e) {
-                System.out.println("Chat Error: Failed to send message to client: " + e);
                 if (connections.remove(client)) {
                     try {
                         client.session.close();
@@ -166,10 +182,8 @@ public class GameRoomServlet extends HttpServlet {
         GameRoom gameRoom = new GameRoom(pin, subCategory, createdAt);
         try {
             gameRoomDao.insertGameRoom(gameRoom);
-            System.out.println("Generated new PIN: " + pin + " for sub-category: " + subCategory);
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Failed to store new game room in the database");
         }
 
         return pin;
