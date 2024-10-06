@@ -3,6 +3,7 @@ package com.cardgameserver.controller;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.cardgameserver.dao.GamerDao;
 
@@ -61,6 +62,10 @@ public class GamerServlet extends HttpServlet {
         try {
             if (action.contains("/id")) {
                 getGamer(request, response);
+            } else if (action.contains("/admin")) {
+                listAdminGamers(request, response);
+            } else if (action.contains("/player")) {
+                listPlayerGamers(request, response);
             } else {
                 listAllGamer(request, response);
             }
@@ -130,6 +135,48 @@ public class GamerServlet extends HttpServlet {
             out.flush();
         }
 
+    }
+
+    private void listAdminGamers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        List<Gamer> listGamer = getAdminGamers();
+        String json = mapper.writeValueAsString(listGamer);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
+            out.flush();
+        }
+
+    }
+
+    private void listPlayerGamers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        List<Gamer> listGamer = getPlayerGamers();
+        String json = mapper.writeValueAsString(listGamer);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print(json);
+            out.flush();
+        }
+
+    }
+
+    private List<Gamer> getAdminGamers() throws SQLException {
+        List<Gamer> allGamers = gamerDao.getAll();
+
+        // Use Stream API to filter by role
+        return allGamers.stream()
+                .filter(gamer -> gamer.getRole() == Gamer.Role.ADMIN)
+                .collect(Collectors.toList());
+    }
+
+    private List<Gamer> getPlayerGamers() throws SQLException {
+        List<Gamer> allGamers = gamerDao.getAll();
+
+        // Use Stream API to filter by role
+        return allGamers.stream()
+                .filter(gamer -> gamer.getRole() == Gamer.Role.PLAYER)
+                .collect(Collectors.toList());
     }
 
 
