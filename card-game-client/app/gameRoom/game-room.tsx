@@ -105,7 +105,7 @@ export default function GameRoom() {
             setLoading(true);
             try {
                 const res = await axios.get(
-                    `/card/getBySubCategory?subCategory=${subCategoryFromQuery}`,
+                    `/cards/subCategory/${subCategoryFromQuery}`,
                 );
                 const quizCards = res.data.map((card: Card) => ({
                     ...card,

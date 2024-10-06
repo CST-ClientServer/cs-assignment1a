@@ -55,7 +55,7 @@ export default function SignupForm() {
 
         axios({
             method: "post",
-            url: "/gamer/insert",
+            url: "/gamers/",
             data: userData,
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })

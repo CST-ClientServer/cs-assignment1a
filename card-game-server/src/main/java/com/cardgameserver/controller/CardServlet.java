@@ -67,7 +67,9 @@ public class CardServlet extends HttpServlet {
 //        }
 
         try {
-            if (action.contains("/id")) {
+            if(action == null) {
+                listAllCard(request, response);
+            } else if (action.contains("/id")) {
                 getCard(request, response);
             } else if (action.contains("/category")) {
                 getCardByCategory(request, response);
