@@ -55,7 +55,6 @@ export const CardsProvider = ({ children }: { children: ReactNode }) => {
     const fetchGameRooms = useCallback(async () => {
         try {
             const response = await axios.get("/game-room/list");
-            console.log(response.data);
             setGameRooms(response.data);
         } catch (error) {
             console.error("Error fetching game rooms:", error);
