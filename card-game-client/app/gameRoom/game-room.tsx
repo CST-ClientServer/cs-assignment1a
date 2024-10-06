@@ -129,7 +129,7 @@ export default function GameRoom() {
 
     // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
-        "ws://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/api/game-room?userName=" + gamer.firstName,
+        "wss://ec2-54-176-67-195.us-west-1.compute.amazonaws.com:8080/api/game-room?userName=" + gamer.firstName,
         shouldConnect,
         setCurrentSlide,
         setShowAnswersChart,
