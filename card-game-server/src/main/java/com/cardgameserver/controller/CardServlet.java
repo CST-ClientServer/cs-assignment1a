@@ -29,19 +29,26 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name="CardServlet", value="/card/*")
+@WebServlet(name="CardServlet", value="/cards/*")
 @MultipartConfig
 public class CardServlet extends HttpServlet {
     private CardDao cardDao;
     ObjectMapper mapper = new ObjectMapper();
 
+    private static final int ID_PATH_LENGTH = "/id".length() + 1;
+    private static final int CATEGORY_PATH_LENGTH = "/category".length() + 1;
+    private static final int SUBCATEGORY_PATH_LENGTH = "/subCategory".length() + 1;
 
     public void init() {
         cardDao= new CardDao();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        doGet(request, response);
+        try {
+            insertCard(request, response);
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -60,41 +67,52 @@ public class CardServlet extends HttpServlet {
 //        }
 
         try {
-            switch (action) {
-                case "/get":
-                    getCard(request, response);
-                    break;
-                case "/getByCategory":
-                    getCardByCategory(request, response);
-                    break;
-                case "/getBySubCategory":
-                    getCardBySubCategory(request, response);
-                    break;
-                case "/insert":
-                    insertCard(request, response);
-                    break;
-                case "/update":
-                    updateCard(request, response);
-                    break;
-                case "/delete":
-                    deleteCard(request, response);
-                    break;
-                case "/getAllCategory":
-                    getAllCategory(request, response);
-                    break;
-                default:
-                    listAllCard(request, response);
-                    break;
+            if (action.contains("/id")) {
+                getCard(request, response);
+            } else if (action.contains("/category")) {
+                getCardByCategory(request, response);
+            } else if (action.contains("/subCategory")) {
+                getCardBySubCategory(request, response);
+            } else if (action.contains("/categories")) {
+                getAllCategory(request, response);
+            } else {
+                listAllCard(request, response);
             }
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
 
+    //Update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+        try {
+            if (action.contains("/id")) {
+                updateCard(request, response);
+            }
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    //Delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+
+        try {
+            if (action.contains("/id")) {
+                deleteCard(request, response);
+            }
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     private void getCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Card card = cardDao.getCard(id);
+        int id = Integer.parseInt(request.getPathInfo().substring(ID_PATH_LENGTH));
+        Card card = cardDao.get(id);
 
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         String json = mapper.writeValueAsString(card);
@@ -110,7 +128,7 @@ public class CardServlet extends HttpServlet {
     }
 
     private void getCardByCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        String category = request.getParameter("category");
+        String category = request.getPathInfo().substring(CATEGORY_PATH_LENGTH);
         List<Card> listCard = cardDao.getCardByCategory(category);
         String json = mapper.writeValueAsString(listCard);
 
@@ -125,7 +143,7 @@ public class CardServlet extends HttpServlet {
     }
 
     private void getCardBySubCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        String subCategory = request.getParameter("subCategory");
+        String subCategory = request.getPathInfo().substring(SUBCATEGORY_PATH_LENGTH);
         List<Card> listCard = cardDao.getCardBySubCategory(subCategory);
         String json = mapper.writeValueAsString(listCard);
 
@@ -155,7 +173,7 @@ public class CardServlet extends HttpServlet {
 
 
         Card card = new Card(question, answerOption, answer, stringFileInfo, category, subCategory);
-        cardDao.insertCard(card);
+        cardDao.insert(card);
 
         String json = mapper.writeValueAsString(card);
         response.setContentType("application/json");
@@ -171,7 +189,7 @@ public class CardServlet extends HttpServlet {
     private void updateCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         request.setCharacterEncoding("UTF-8");
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        int id = Integer.parseInt(request.getPathInfo().substring(ID_PATH_LENGTH));
         String question = request.getParameter("question");
         String answerOption = request.getParameter("answerOption");
         String answer = request.getParameter("answer");
@@ -191,7 +209,7 @@ public class CardServlet extends HttpServlet {
             String stringFileInfo = mapper.writeValueAsString(file);
 
             card = new Card(id, question, answerOption, answer, stringFileInfo, category, subCategory);
-            cardDao.updateCard(card);
+            cardDao.update(card);
         } else {
             card = new Card(id, question, answerOption, answer, category, subCategory);
             cardDao.updateCardWithoutFile(card);
@@ -210,8 +228,8 @@ public class CardServlet extends HttpServlet {
     }
 
     private void deleteCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        cardDao.deleteCard(id);
+        int id = Integer.parseInt(request.getPathInfo().substring(ID_PATH_LENGTH));
+        cardDao.delete(id);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try (PrintWriter out = response.getWriter()) {
@@ -234,7 +252,7 @@ public class CardServlet extends HttpServlet {
     }
 
     private void listAllCard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        List<Card> listGamer = cardDao.listAllCard();
+        List<Card> listGamer = cardDao.getAll();
         String json = mapper.writeValueAsString(listGamer);
 
         response.setContentType("application/json");
