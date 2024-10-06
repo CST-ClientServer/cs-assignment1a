@@ -1,6 +1,7 @@
 package com.cardgameserver.dao;
 
 import com.cardgameserver.model.Gamer;
+import com.cardgameserver.repository.IRepository;
 import com.cardgameserver.util.ConnectionManager;
 import com.cardgameserver.util.EncryptPassword;
 import com.cardgameserver.util.JwtHandler;
@@ -9,9 +10,23 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GamerDao {
+public class GamerDao implements IRepository<Gamer> {
+    private Connection connection;
 
-    public boolean insertGamer(Gamer gamer) throws SQLException {
+    @Override
+    public void init() throws SQLException {
+        // Initialize the connection (could use a connection string here if needed)
+        this.connection = ConnectionManager.getConnection();
+    }
+
+    @Override
+    public void close() throws SQLException {
+        // Close the connection
+        ConnectionManager.closeConnection(this.connection);
+    }
+
+    @Override
+    public boolean insert(Gamer gamer) throws SQLException {
         String sql = "INSERT INTO gamer (firstName, lastName, email, role, password) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -21,11 +36,10 @@ public class GamerDao {
             statement.setString(3, gamer.getEmail());
             statement.setString(4, gamer.getRole().name());
 
-            // Before inserting the password, we need to hash it.
+            // Before inserting the password, hash it.
             EncryptPassword encryptPassword = new EncryptPassword();
             String encryptedPW = encryptPassword.encrypt(gamer.getPassword());
-
-            statement.setString(5,encryptedPW);
+            statement.setString(5, encryptedPW);
 
             return statement.executeUpdate() > 0;
         } catch (Exception e) {
@@ -33,7 +47,8 @@ public class GamerDao {
         }
     }
 
-    public List<Gamer> listAllGamer() throws SQLException {
+    @Override
+    public List<Gamer> getAll() throws SQLException {
         List<Gamer> listGamer = new ArrayList<>();
         String sql = "SELECT * FROM gamer";
         try (Connection connection = ConnectionManager.getConnection();
@@ -51,35 +66,64 @@ public class GamerDao {
                 listGamer.add(gamer);
             }
         }
-
         return listGamer;
     }
 
-    public Gamer getGamer(int id) throws SQLException {
+    @Override
+    public Gamer get(int id) throws SQLException {
         Gamer gamer = null;
         String sql = "SELECT * FROM gamer WHERE id = ?";
-
-
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-
             statement.setInt(1, id);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     String firstName = resultSet.getString("firstName");
                     String lastName = resultSet.getString("lastName");
                     String email = resultSet.getString("email");
                     Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
-
                     gamer = new Gamer(id, firstName, lastName, email, role);
                 }
             }
         }
-
-
         return gamer;
     }
+
+    @Override
+    public int update(Gamer gamer) throws SQLException {
+        String sql = "UPDATE gamer SET firstName = ?, lastName = ?, email = ?, role = ?, password = ? WHERE id = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, gamer.getFirstName());
+            statement.setString(2, gamer.getLastName());
+            statement.setString(3, gamer.getEmail());
+            statement.setString(4, gamer.getRole().name());
+
+            // Encrypt password before updating.
+            EncryptPassword encryptPassword = new EncryptPassword();
+            String encryptedPW = encryptPassword.encrypt(gamer.getPassword());
+            statement.setString(5, encryptedPW);
+            statement.setInt(6, gamer.getId());
+
+            return statement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int delete(int id) throws SQLException {
+        String sql = "DELETE FROM gamer WHERE id = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+            return statement.executeUpdate();
+        }
+    }
+
+    // You can retain other methods specific to `GamerDao`, like `loginGamer`, which wouldn't be part of `IRepository`.
 
     public Gamer loginGamer(String email, String password) throws SQLException {
         Gamer gamer = null;
@@ -89,7 +133,6 @@ public class GamerDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, email);
-
             EncryptPassword encryptPassword = new EncryptPassword();
             String decryptedPW = encryptPassword.encrypt(password);
 
@@ -103,7 +146,7 @@ public class GamerDao {
                     Gamer.Role role = Gamer.Role.valueOf(resultSet.getString("role"));
 
                     JwtHandler jwtHandler = new JwtHandler();
-                    String token = jwtHandler.generateToken(id + "" , role.name());
+                    String token = jwtHandler.generateToken(id + "", role.name());
 
                     gamer = new Gamer(id, firstName, lastName, email, role, token);
                 }
@@ -111,11 +154,6 @@ public class GamerDao {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return gamer;
     }
-
-
-
 }
-
