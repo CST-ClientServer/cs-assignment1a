@@ -129,7 +129,7 @@ export default function GameRoom() {
 
     // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
-        "wss://jasper-server-meh.com/api/game-room?userName=" + gamer.firstName,
+        "wss://jasper-server-meh.shop/api/game-room?userName=" + gamer.firstName,
         shouldConnect,
         setCurrentSlide,
         setShowAnswersChart,
