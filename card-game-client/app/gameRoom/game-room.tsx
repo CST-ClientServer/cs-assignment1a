@@ -98,9 +98,11 @@ export default function GameRoom() {
         [router],
     );
 
-    console.log(quizCards);
-
     useLayoutEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login";
+        }
         const fetchQuizCards = async () => {
             setLoading(true);
             try {
@@ -164,8 +166,6 @@ export default function GameRoom() {
             router.push("/dashboard");
         }
     };
-
-    console.log(quizCards[currentSlide]?.answer);
 
     if (loading) {
         return (
