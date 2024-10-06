@@ -131,7 +131,10 @@ export default function GameRoom() {
 
     // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
-        "ws://localhost:8081/api/game-room?userName=" + gamer.firstName,
+        "ws://localhost:8081/api/game-room?userName=" +
+            gamer.firstName +
+            " " +
+            gamer.lastName,
         shouldConnect,
         setCurrentSlide,
         setShowAnswersChart,
@@ -139,7 +142,11 @@ export default function GameRoom() {
 
     const handleAnswerSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        sendMessage({ event: "answerClick", data: answer });
+        sendMessage({
+            event: "answerClick",
+            data: answer,
+            nickname: gamer.firstName + gamer.lastName,
+        });
     };
 
     const handleSubmit = (event: React.FormEvent) => {
