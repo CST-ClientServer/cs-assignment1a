@@ -22,6 +22,7 @@ ChartJS.register(
 interface AnswerEvent {
     event: string;
     data: string;
+    nickname?: string;
 }
 
 interface ShowAnswersChartProps {
@@ -57,7 +58,8 @@ const ShowAnswersChart: React.FC<ShowAnswersChartProps> = ({
 
     allAnswers.forEach((answerEvent) => {
         if (answerEvent.event === "answerClick") {
-            const answer = answerEvent.data.split(" ")[1]; // format 'Name 2017'
+            const splitData = answerEvent.data.split(" ");
+            const answer = splitData.slice(2).join(" ");
             answerCounts[answer] = (answerCounts[answer] || 0) + 1;
         }
     });
@@ -92,7 +94,7 @@ const ShowAnswersChart: React.FC<ShowAnswersChartProps> = ({
 
     return (
         <div ref={chartRef} className="relative p-4 bg-gray-200 rounded-lg">
-            <p className="text-sm font-semibold ">Correct Answer: {answer}</p>
+            <p className="text-sm font-semibold">Correct Answer: {answer}</p>
             <Bar data={data} options={options} />
         </div>
     );

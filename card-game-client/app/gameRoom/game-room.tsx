@@ -98,9 +98,11 @@ export default function GameRoom() {
         [router],
     );
 
-    console.log(quizCards);
-
     useLayoutEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login";
+        }
         const fetchQuizCards = async () => {
             setLoading(true);
             try {
@@ -129,7 +131,10 @@ export default function GameRoom() {
 
     // WebSocket connection for game room
     const { messages, answers, sendMessage } = useWebSocket(
-        "wss://jasper-server-meh.shop/api/game-room?userName=" + gamer.firstName,
+        "wss://jasper-server-meh.shop/api/game-room?userName=" +
+            gamer.firstName +
+            " " +
+            gamer.lastName,
         shouldConnect,
         setCurrentSlide,
         setShowAnswersChart,
@@ -137,7 +142,11 @@ export default function GameRoom() {
 
     const handleAnswerSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        sendMessage({ event: "answerClick", data: answer });
+        sendMessage({
+            event: "answerClick",
+            data: answer,
+            nickname: gamer.firstName + gamer.lastName,
+        });
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -164,8 +173,6 @@ export default function GameRoom() {
             router.push("/dashboard");
         }
     };
-
-    console.log(quizCards[currentSlide]?.answer);
 
     if (loading) {
         return (

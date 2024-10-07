@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type Message = {
     event: string;
     data: string;
+    nickname?: string;
 };
 
 const useWebSocket = (
@@ -34,10 +35,23 @@ const useWebSocket = (
             const data: Message = JSON.parse(event.data);
             switch (data.event) {
                 case "answerClick":
-                    setAnswers((prevAnswers) => [
-                        ...prevAnswers,
-                        { event: "answerClick", data: data.data },
-                    ]);
+                    const nickname =
+                        data.data.split(" ")[0] + data.data.split(" ")[1];
+                    setAnswers((prevAnswers) => {
+                        // filter by nickname
+                        const updatedAnswers = prevAnswers.filter(
+                            (prevAnswer) => prevAnswer.nickname !== nickname,
+                        );
+
+                        return [
+                            ...updatedAnswers,
+                            {
+                                event: "answerClick",
+                                nickname,
+                                data: data.data,
+                            },
+                        ];
+                    });
                     break;
                 case "slideChange":
                     setCurrentSlide(parseInt(data.data));
