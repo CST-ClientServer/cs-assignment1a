@@ -30,13 +30,17 @@ public class GamerServlet extends HttpServlet {
         String action = request.getPathInfo();
 
         try {
-            switch (action) {
-                case "/login":
-                    loginGamer(request, response);
-                    break;
-                default:
-                    insertGamer(request, response);
-                    break;
+            if(action == null) {
+                insertGamer(request, response);
+            } else {
+                switch (action) {
+                    case "/login":
+                        loginGamer(request, response);
+                        break;
+                    default:
+                        insertGamer(request, response);
+                        break;
+                }
             }
         } catch (Exception e) {
             throw new ServletException(e);
