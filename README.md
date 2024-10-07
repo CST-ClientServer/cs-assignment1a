@@ -17,7 +17,7 @@
 ## - How to run the web-server in your local
 
 1. pull latest docker image
-``` docker pull devjasper0906/card-game-tomcat:1.1.2```
+``` docker pull devjasper0906/card-game-tomcat:1.2.1```
 
 2. check image id
 ``` docker images```
