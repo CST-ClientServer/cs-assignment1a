@@ -4,18 +4,20 @@
 
 body {
   color: #000;
-  background-color: #000;
+  background-color: #fff;
 }
 
 [data-theme="dark"] body {
   background-color: #000;
-  color: #fff;
+  color: #ffff00;
+  /* color: fff; */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  color: #ffff00;
 }
 
 @layer utilities {
