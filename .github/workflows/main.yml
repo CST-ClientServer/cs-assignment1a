@@ -23,7 +23,7 @@ jobs:
 
       - name: Copy Secret      
         run: | 
-          echo "${{ secrets.DBCONNECTION }}" >> ./card-game-server/src/main/java/com/cardgameserver/util/DBConnection.java
+          echo "${{ secrets.ENV }}" >> ./card-game-server/.env
       
       - name: Echo secret
         run: |
