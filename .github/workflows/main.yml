@@ -21,13 +21,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Copy Secret
-      - env:
-          SECRET: ${{ secrets.DBCONNECTION }}
-          SECRET_DIR: ./card-game-server/src/main/java/com/cardgame/util
-          SECRET_FILE_NAME: DBConnection.java
+      - name: Copy Secret      
         run: | 
-          echo $SECRET | base64 --decode > $SECRET_DIR/$SECRET_FILE_NAME
+          echo "${{ secrets.DBCONNECTION }}" | base64 --decode > ./card-game-server/src/main/java/com/cardgame/util/DBConnection.java
 
       - name: Build the project
         working-directory: ./card-game-server  # Navigate to server folder
