@@ -23,7 +23,6 @@ public class CardDao implements IRepository<Card> {
 
     @Override
     public void close() throws SQLException {
-        // Close the connection
         ConnectionManager.closeConnection(this.connection);
     }
 
