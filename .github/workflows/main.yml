@@ -27,7 +27,7 @@ jobs:
           SECRET_DIR: ./card-game-server/src/main/java/com/cardgame/util
           SECRET_FILE_NAME: DBConnection.java
         run: | 
-          echo $SECRET | base64 --decode > $SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+          echo $SECRET | base64 --decode > $SECRET_DIR/$SECRET_FILE_NAME
 
       - name: Build the project
         working-directory: ./card-game-server  # Navigate to server folder
