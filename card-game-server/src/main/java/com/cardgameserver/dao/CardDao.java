@@ -17,6 +17,7 @@ public class CardDao implements IRepository<Card> {
 
     @Override
     public void init() throws SQLException {
+        // Initialize the connection (could use a connection string here if needed)
         this.connection = ConnectionManager.getConnection();
     }
 

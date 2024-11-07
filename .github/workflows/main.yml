@@ -23,7 +23,12 @@ jobs:
 
       - name: Copy Secret      
         run: | 
-          echo "${{ secrets.DBCONNECTION }}" > ./card-game-server/src/main/java/com/cardgameserver/util/DBConnection.java
+          echo "${{ secrets.DBCONNECTION }}" >> ./card-game-server/src/main/java/com/cardgameserver/util/DBConnection.java
+      
+      - name: Echo secret
+        run: |
+          cat ./card-game-server/src/main/java/com/cardgameserver/util/DBConnection.java
+
 
       - name: Build the project
         working-directory: ./card-game-server  # Navigate to server folder
